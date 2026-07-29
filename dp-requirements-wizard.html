@@ -4,9 +4,6 @@
 <meta charset="UTF-8">
 <title>Wizard Requisiti Data Product</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
 <style>
 :root{
   --md-primary:#00677E;      /* petrolio - richiama "dato/tecnico" */
@@ -29,12 +26,12 @@
 *{box-sizing:border-box;}
 html,body{margin:0;padding:0;}
 body{
-  font-family:'Roboto',Arial,sans-serif;
+  font-family:'Segoe UI',Roboto,-apple-system,BlinkMacSystemFont,Arial,sans-serif;
   background:var(--md-bg);
   color:var(--md-text);
   line-height:1.5;
 }
-code, .mono{font-family:'Roboto Mono',monospace;}
+code, .mono{font-family:'Consolas','Courier New',monospace;}
 
 /* ---------- App bar ---------- */
 .appbar{
@@ -251,6 +248,41 @@ code, .mono{font-family:'Roboto Mono',monospace;}
 .copy-status{font-size:12px;color:var(--md-success);margin-right:auto;align-self:center;opacity:0;transition:opacity .2s;}
 .copy-status.show{opacity:1;}
 
+/* ---------- Validazione progressiva ---------- */
+.box-footer{
+  border-top:1px solid #E7ECED;margin-top:20px;padding-top:16px;
+  display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+}
+.error-banner{
+  display:flex;align-items:center;gap:8px;
+  background:#FDECEA;color:var(--md-error);border:1px solid #F3C6C1;
+  border-radius:8px;padding:9px 13px;font-size:12.5px;font-weight:500;width:100%;
+}
+.completed-banner{
+  display:flex;align-items:center;gap:10px;width:100%;
+  background:#EAF6EF;color:var(--md-success);border:1px solid #C9E9D6;
+  border-radius:8px;padding:10px 14px;font-size:13px;font-weight:500;
+}
+.completed-banner .cb-icon{
+  width:20px;height:20px;border-radius:50%;background:var(--md-success);color:#fff;
+  display:flex;align-items:center;justify-content:center;font-size:12px;flex:none;
+}
+.completed-banner .cb-edit{
+  margin-left:auto;background:none;border:none;color:var(--md-success);text-decoration:underline;
+  font-size:12px;cursor:pointer;font-weight:600;
+}
+.field.field-error input, .field.field-error textarea, .field.field-error select{
+  border-color:var(--md-error);box-shadow:0 0 0 3px rgba(192,57,43,.10);
+}
+.next-locked{
+  border:1.5px dashed var(--md-outline);border-radius:var(--radius);
+  padding:16px 20px;display:flex;align-items:center;gap:10px;
+  color:var(--md-text-mute);font-size:13px;background:#FAFBFB;margin-bottom:20px;
+}
+.next-locked .lock-ico{font-size:15px;}
+.btn:disabled{opacity:.4;cursor:not-allowed;box-shadow:none;}
+.card.is-complete{border-color:#BFE3D0;}
+
 .hidden{display:none !important;}
 .note-box{
   background:var(--md-primary-light);border-left:4px solid var(--md-primary);
@@ -307,10 +339,10 @@ code, .mono{font-family:'Roboto Mono',monospace;}
 
 <div class="bottombar hidden" id="bottomBar">
   <button class="btn btn-ghost" id="btnAddOp">
-    <span class="material-icons-outlined" style="font-size:18px;">add</span> Aggiungi un'altra Output Port
+    <span aria-hidden="true">+</span> Aggiungi un'altra Output Port
   </button>
-  <button class="btn btn-primary" id="btnGenerate">
-    <span class="material-icons-outlined" style="font-size:18px;">description</span> Genera riepilogo per Confluence
+  <button class="btn btn-primary" id="btnGenerate" disabled title="Convalida tutte le sezioni obbligatorie per generare il riepilogo">
+    <span aria-hidden="true">&#128203;</span> Genera riepilogo per Confluence
   </button>
 </div>
 
@@ -327,10 +359,10 @@ code, .mono{font-family:'Roboto Mono',monospace;}
     <div class="output-foot">
       <span class="copy-status" id="copyStatus">Copiato negli appunti ✓</span>
       <button class="btn btn-ghost" id="btnCopyHtml">
-        <span class="material-icons-outlined" style="font-size:17px;">content_copy</span> Copia (formattato)
+        <span aria-hidden="true">&#10697;</span> Copia (formattato)
       </button>
       <button class="btn btn-primary" id="btnCopyText">
-        <span class="material-icons-outlined" style="font-size:17px;">notes</span> Copia (testo semplice)
+        <span aria-hidden="true">&#9776;</span> Copia (testo semplice)
       </button>
     </div>
   </div>
@@ -343,6 +375,9 @@ code, .mono{font-family:'Roboto Mono',monospace;}
 let currentPath = null;
 let opCounter = 0;
 const opBlocks = []; // {id, reqIndex}
+let dpValidated = false;
+let goldValidated = false;
+const opValidated = {}; // { [opBlockId]: true }
 
 const EX = { // valori di esempio (placeholder editabili)
   domain: "financeaccounting",
@@ -447,22 +482,142 @@ function renderDynamic(){
   area.innerHTML = '';
   opBlocks.length = 0;
   opCounter = 0;
-  document.getElementById('bottomBar').classList.remove('hidden');
+  dpValidated = false;
+  goldValidated = false;
+  Object.keys(opValidated).forEach(k=>delete opValidated[k]);
 
-  if(currentPath === 'nuovo_dp'){
-    area.appendChild(buildDpGeneraliCard(true));
-    area.appendChild(buildOpAnchor());
-    addOpBlock();
-  } else if(currentPath === 'nuova_op'){
-    area.appendChild(buildDpGeneraliCard(false));
-    area.appendChild(buildOpAnchor());
-    addOpBlock();
-  } else if(currentPath === 'gold'){
-    area.appendChild(buildDpGeneraliCard(true, true));
-    area.appendChild(buildGoldCard());
-    document.getElementById('btnAddOp').classList.add('hidden');
+  document.getElementById('bottomBar').classList.add('hidden');
+  document.getElementById('btnAddOp').classList.toggle('hidden', currentPath === 'gold');
+
+  // Step 1: solo il box "Dati generali" viene mostrato inizialmente.
+  // Gli step successivi (Output Port / Gold Port) si sbloccano solo dopo la convalida.
+  const dpCard = buildDpGeneraliCard(currentPath !== 'nuova_op', currentPath === 'gold');
+  area.appendChild(dpCard);
+  attachDpValidation(dpCard);
+
+  const lockNote = document.createElement('div');
+  lockNote.className = 'next-locked';
+  lockNote.id = 'nextLockNote';
+  lockNote.innerHTML = `<span class="lock-ico">🔒</span> ${currentPath==='gold' ? 'Completa i dati generali per sbloccare la Gold Port' : 'Completa i dati generali per sbloccare la prima Output Port'}`;
+  area.appendChild(lockNote);
+
+  updateGenerateAvailability();
+}
+
+/* ---------- Helpers di validazione ---------- */
+function validateBox(boxEl){
+  const invalid = [];
+  boxEl.querySelectorAll('.req-field').forEach(f=>{
+    const empty = !f.value || !f.value.trim();
+    f.closest('.field').classList.toggle('field-error', empty);
+    if(empty) invalid.push(f);
+  });
+  return invalid;
+}
+
+function completeBox(cardEl, footerEl, btnEl, bannerEl, label, onEdit){
+  cardEl.classList.add('is-complete');
+  btnEl.classList.add('hidden');
+  bannerEl.classList.add('hidden');
+  const cb = document.createElement('div');
+  cb.className = 'completed-banner';
+  cb.innerHTML = `<span class="cb-icon">✓</span> ${esc(label)} <button class="cb-edit" type="button">Modifica</button>`;
+  footerEl.appendChild(cb);
+  cb.querySelector('.cb-edit').addEventListener('click', ()=>{
+    cardEl.classList.remove('is-complete');
+    cb.remove();
+    btnEl.classList.remove('hidden');
+    if(onEdit) onEdit();
+  });
+}
+
+function attachDpValidation(cardEl){
+  const btn = cardEl.querySelector('#dpValidateBtn');
+  const banner = cardEl.querySelector('#dpErrorBanner');
+  const footer = btn.closest('.box-footer');
+  btn.addEventListener('click', ()=>{
+    const invalid = validateBox(cardEl);
+    if(invalid.length){
+      banner.classList.remove('hidden');
+      invalid[0].focus();
+      return;
+    }
+    banner.classList.add('hidden');
+    dpValidated = true;
+    const label = currentPath === 'nuova_op' ? 'Data Product di riferimento confermato' : 'Dati generali del Data Product completati';
+    completeBox(cardEl, footer, btn, banner, label, ()=>{ dpValidated = false; updateGenerateAvailability(); });
+
+    const lockNote = document.getElementById('nextLockNote');
+    if(lockNote) lockNote.remove();
+
+    const area = document.getElementById('dynamicArea');
+    if(currentPath === 'gold'){
+      const goldCard = buildGoldCard();
+      area.appendChild(goldCard);
+      attachGoldValidation(goldCard);
+    } else {
+      const container = buildOpAnchor();
+      area.appendChild(container);
+      const id = addOpBlock();
+      document.getElementById('btnAddOp').disabled = true; // sbloccato solo quando il blocco è validato
+    }
+    document.getElementById('bottomBar').classList.remove('hidden');
+    updateGenerateAvailability();
+  });
+}
+
+function attachOpValidation(id){
+  const block = document.getElementById(id);
+  const btn = block.querySelector('.op-validate-btn');
+  const banner = block.querySelector('.op-error-banner');
+  const footer = btn.closest('.box-footer');
+  btn.addEventListener('click', ()=>{
+    const invalid = validateBox(block);
+    if(invalid.length){
+      banner.classList.remove('hidden');
+      invalid[0].focus();
+      return;
+    }
+    banner.classList.add('hidden');
+    opValidated[id] = true;
+    const opNameVal = block.querySelector('.op-name').value.trim();
+    completeBox(block, footer, btn, banner, `Output Port "${opNameVal}" completata`, ()=>{
+      opValidated[id] = false;
+      updateGenerateAvailability();
+      document.getElementById('btnAddOp').disabled = true;
+    });
+    document.getElementById('btnAddOp').disabled = false;
+    updateGenerateAvailability();
+  });
+}
+
+function attachGoldValidation(cardEl){
+  const btn = cardEl.querySelector('#goldValidateBtn');
+  const banner = cardEl.querySelector('#goldErrorBanner');
+  const footer = btn.closest('.box-footer');
+  btn.addEventListener('click', ()=>{
+    const invalid = validateBox(cardEl);
+    if(invalid.length){
+      banner.classList.remove('hidden');
+      invalid[0].focus();
+      return;
+    }
+    banner.classList.add('hidden');
+    goldValidated = true;
+    completeBox(cardEl, footer, btn, banner, 'Gold Port completata', ()=>{ goldValidated = false; updateGenerateAvailability(); });
+    updateGenerateAvailability();
+  });
+}
+
+function updateGenerateAvailability(){
+  const genBtn = document.getElementById('btnGenerate');
+  let ready = dpValidated;
+  if(ready){
+    if(currentPath === 'gold') ready = goldValidated;
+    else ready = opBlocks.length > 0 && opBlocks.every(id => opValidated[id]);
   }
-  if(currentPath !== 'gold') document.getElementById('btnAddOp').classList.remove('hidden');
+  genBtn.disabled = !ready;
+  genBtn.title = ready ? '' : 'Convalida tutte le sezioni obbligatorie per generare il riepilogo';
 }
 
 function buildOpAnchor(){
@@ -483,12 +638,22 @@ function buildDpGeneraliCard(full, isGold=false){
       <p class="card-sub">Il Data Product esiste già: indica solo il riferimento, i dati generali sono già a catalogo.</p>
       <div class="field">
         <label>Nome Data Product esistente <span class="req">*</span></label>
-        <input type="text" id="f_existing_dp" placeholder="Es. ${EX.dpName}">
+        <input type="text" id="f_existing_dp" class="req-field" placeholder="Es. ${EX.dpName}">
         <div class="hint">Verificato su Witboost Marketplace</div>
       </div>
       <div class="field">
         <label>Domain</label>
-        <input type="text" id="f_existing_domain" placeholder="Es. ${EX.domain}">
+        <select id="f_existing_domain">
+          <option value="">— non specificato —</option>
+          <option value="financeaccounting">Finance Accounting</option>
+          <option value="scmoperation">SCM Operation</option>
+          <option value="manufacturing">Manufacturing</option>
+          <option value="altro">Altro / non indicato</option>
+        </select>
+      </div>
+      <div class="box-footer">
+        <div class="error-banner hidden" id="dpErrorBanner">Compila i campi obbligatori evidenziati per continuare.</div>
+        <button class="btn btn-primary" id="dpValidateBtn">Convalida e continua →</button>
       </div>
     `;
     return card;
@@ -501,18 +666,24 @@ function buildDpGeneraliCard(full, isGold=false){
     <div class="row2">
       <div class="field">
         <label>Domain <span class="req">*</span></label>
-        <input type="text" id="f_domain" placeholder="Es. ${EX.domain}">
+        <select id="f_domain" class="req-field">
+          <option value="">— seleziona —</option>
+          <option value="financeaccounting">Finance Accounting</option>
+          <option value="scmoperation">SCM Operation</option>
+          <option value="manufacturing">Manufacturing</option>
+          <option value="altro">Altro / non indicato</option>
+        </select>
         <div class="hint">Rif. TeamSystem Development Portal</div>
       </div>
       <div class="field">
         <label>Data Product Name <span class="req">*</span></label>
-        <input type="text" id="f_dpname" placeholder="Es. ${EX.dpName}">
+        <input type="text" id="f_dpname" class="req-field" placeholder="Es. ${EX.dpName}">
       </div>
     </div>
 
     <div class="field">
       <label>Data Product Description <span class="req">*</span> <span class="chip chip-shared" style="margin-left:6px;">PO + Analista se necessario</span></label>
-      <textarea id="f_dpdesc" placeholder="Es. ${EX.dpDesc}"></textarea>
+      <textarea id="f_dpdesc" class="req-field" placeholder="Es. ${EX.dpDesc}"></textarea>
     </div>
 
     <div class="row2">
@@ -523,7 +694,7 @@ function buildDpGeneraliCard(full, isGold=false){
       </div>
       <div class="field">
         <label>Owner <span class="req">*</span></label>
-        <input type="text" id="f_owner" placeholder="Es. ${EX.owner}">
+        <input type="text" id="f_owner" class="req-field" placeholder="Es. ${EX.owner}">
       </div>
     </div>
 
@@ -538,6 +709,11 @@ function buildDpGeneraliCard(full, isGold=false){
         <input type="text" id="f_permessi" placeholder="Es. ${EX.permessi}">
         <div class="hint">Persone + ruolo: analisti, sviluppatori, tester</div>
       </div>
+    </div>
+
+    <div class="box-footer">
+      <div class="error-banner hidden" id="dpErrorBanner">Compila i campi obbligatori evidenziati per continuare.</div>
+      <button class="btn btn-primary" id="dpValidateBtn">Convalida e continua →</button>
     </div>
   `;
   return card;
@@ -556,14 +732,14 @@ function addOpBlock(){
   block.innerHTML = `
     <div class="op-block-header">
       <span class="op-tag">Output Port #${opCounter}</span>
-      ${opCounter>1 ? `<button class="op-remove" onclick="removeOpBlock('${id}')"><span class="material-icons-outlined" style="font-size:15px;">delete_outline</span>Rimuovi</button>` : ''}
+      ${opCounter>1 ? `<button class="op-remove" onclick="removeOpBlock('${id}')"><span aria-hidden="true">&#10005;</span> Rimuovi</button>` : ''}
     </div>
 
     <p class="card-title" style="font-size:14.5px;"><span class="num">2</span> Output Port <span class="chip chip-shared">PO + Analista</span></p>
     <div class="row2">
       <div class="field">
         <label>Output Port Name <span class="req">*</span></label>
-        <input type="text" class="op-name" placeholder="Es. ${EX.opName}">
+        <input type="text" class="op-name req-field" placeholder="Es. ${EX.opName}">
       </div>
       <div class="field">
         <label>Version</label>
@@ -573,7 +749,7 @@ function addOpBlock(){
     </div>
     <div class="field">
       <label>Output Port Description <span class="req">*</span></label>
-      <textarea class="op-desc" placeholder="Es. ${EX.opDesc}"></textarea>
+      <textarea class="op-desc req-field" placeholder="Es. ${EX.opDesc}"></textarea>
       <div class="hint">La descrizione deve superare i 50 caratteri</div>
     </div>
     <div class="row3">
@@ -586,11 +762,23 @@ function addOpBlock(){
       </div>
       <div class="field">
         <label>Schedulazione per ingestion</label>
-        <input type="text" class="op-sched" placeholder="Es. ${EX.schedulazione}">
+        <select class="op-sched">
+          <option value="Low — Ogni giorno">Low — Ogni giorno</option>
+          <option value="Medium — 2 volte al giorno" selected>Medium — 2 volte al giorno</option>
+          <option value="High — Ogni ora">High — Ogni ora</option>
+          <option value="Highest — Sotto le 2 ore">Highest — Sotto le 2 ore</option>
+        </select>
+        <div class="hint">Frequenza da definire in base alle esigenze funzionali e operative</div>
       </div>
       <div class="field">
         <label>Volume dati atteso</label>
-        <input type="text" class="op-volume" placeholder="Es. ${EX.volume}">
+        <select class="op-volume">
+          <option value="Minimo (~2 MB / ~500 record)">Minimo — ~2 MB / ~500 record</option>
+          <option value="Medium (~10 MB / ~10.000 record)" selected>Medium — ~10 MB / ~10.000 record</option>
+          <option value="High (~50 MB / ~100.000 record)">High — ~50 MB / ~100.000 record</option>
+          <option value="Highest (~200 MB / ~500.000 record)">Highest — ~200 MB / ~500.000 record</option>
+        </select>
+        <div class="hint">Fascia stimata, utile al dimensionamento del flusso verso Hermes</div>
       </div>
     </div>
     <div class="field">
@@ -610,7 +798,7 @@ function addOpBlock(){
         </tr></thead>
         <tbody class="col-tbody"></tbody>
       </table>
-      <button class="add-row-btn" onclick="addColumnRow('${id}')"><span class="material-icons-outlined" style="font-size:15px;">add</span>Aggiungi campo</button>
+      <button class="add-row-btn" onclick="addColumnRow('${id}')"><span aria-hidden="true">+</span> Aggiungi campo</button>
     </div>
 
     <!-- 2.2 -->
@@ -635,24 +823,32 @@ function addOpBlock(){
     <!-- 3 -->
     <div class="subsection">
       <div class="subhead">3. Parametri script insert per catalogazione <span class="chip chip-shared">PO + Analista</span></div>
-      <div class="row3">
+      <div class="field">
+        <label>Descrizione breve in italiano <span class="mono" style="color:#8A9A9D;font-weight:400;">(DPShortDescription)</span></label>
+        <input type="text" class="op-shortdesc" placeholder="Es. ${EX.dpShortDesc}">
+        <div class="hint">Mostrata nella console di ingestion</div>
+      </div>
+      <div class="row2">
         <div class="field">
-          <label>DPShortDescription</label>
-          <input type="text" class="op-shortdesc" placeholder="Es. ${EX.dpShortDesc}">
-        </div>
-        <div class="field">
-          <label>DPModuleId_FW5L</label>
+          <label>ID modulo applicativo FW5L <span class="mono" style="color:#8A9A9D;font-weight:400;">(DPModuleId_FW5L)</span></label>
           <input type="text" class="op-moduleid" placeholder="Es. ${EX.moduleId}">
+          <div class="hint">Identificativo numerico del modulo applicativo associato al Data Product</div>
         </div>
         <div class="field">
-          <label>DPBatchSize</label>
+          <label>Dimensione batch di ingestion <span class="mono" style="color:#8A9A9D;font-weight:400;">(DPBatchSize)</span></label>
           <select class="op-batchsize">
             <option value="100">100 — entità pesanti / join complesse</option>
             <option value="500" selected>500 — via di mezzo</option>
             <option value="1000">1000 — entità leggere, alto volume</option>
           </select>
+          <div class="hint">Numero di record inviati per singola chiamata di ingestion</div>
         </div>
       </div>
+    </div>
+
+    <div class="box-footer">
+      <div class="error-banner hidden op-error-banner">Compila i campi obbligatori evidenziati (Output Port Name, Description) per continuare.</div>
+      <button class="btn btn-primary op-validate-btn">Convalida Output Port e continua →</button>
     </div>
   `;
   container.appendChild(block);
@@ -675,13 +871,21 @@ function addOpBlock(){
     });
     clWrap.appendChild(g);
   });
+
+  attachOpValidation(id);
+  return id;
 }
 
 function removeOpBlock(id){
   const idx = opBlocks.indexOf(id);
   if(idx>-1) opBlocks.splice(idx,1);
+  delete opValidated[id];
   const b = document.getElementById(id);
   if(b) b.remove();
+  updateGenerateAvailability();
+  // se il blocco rimosso era l'ultimo non validato, ripristina lo stato del bottone "Aggiungi"
+  const lastId = opBlocks[opBlocks.length-1];
+  document.getElementById('btnAddOp').disabled = lastId ? !opValidated[lastId] : false;
 }
 
 function addColumnRow(blockId, prefill){
@@ -722,11 +926,11 @@ function buildGoldCard(){
     </div>
     <div class="field">
       <label>Gold Port Name <span class="req">*</span></label>
-      <input type="text" id="g_name" placeholder="Es. ${EX.goldName}">
+      <input type="text" id="g_name" class="req-field" placeholder="Es. ${EX.goldName}">
     </div>
     <div class="field">
       <label>Gold Port Description <span class="req">*</span></label>
-      <textarea id="g_desc" placeholder="Es. ${EX.goldDesc}"></textarea>
+      <textarea id="g_desc" class="req-field" placeholder="Es. ${EX.goldDesc}"></textarea>
     </div>
     <div class="field">
       <label>Output Port sorgenti utilizzate</label>
@@ -747,6 +951,11 @@ function buildGoldCard(){
         <input type="text" id="g_version" value="${EX.version}">
       </div>
     </div>
+
+    <div class="box-footer">
+      <div class="error-banner hidden" id="goldErrorBanner">Compila i campi obbligatori evidenziati per continuare.</div>
+      <button class="btn btn-primary" id="goldValidateBtn">Convalida Gold Port e continua →</button>
+    </div>
   `;
   return card;
 }
@@ -756,7 +965,9 @@ function buildGoldCard(){
    ============================================================ */
 document.getElementById('btnAddOp').addEventListener('click', ()=>{
   if(!currentPath || currentPath === 'gold') return;
+  if(document.getElementById('btnAddOp').disabled) return; // sicurezza: l'ultimo blocco deve essere convalidato
   addOpBlock();
+  document.getElementById('btnAddOp').disabled = true;
 });
 
 /* ============================================================
@@ -882,9 +1093,9 @@ function buildOutputHtml(){
     html += `<h4>2.3 Checklist di validazione</h4><p>Voci verificate: <strong>${o.checkedCount}/${o.totalChecks}</strong></p>`;
 
     html += `<h4>3. Parametri script insert per catalogazione</h4><table>`;
-    html += `<tr><td>DPShortDescription</td><td>${esc(o.shortdesc)}</td></tr>`;
-    html += `<tr><td>DPModuleId_FW5L</td><td>${esc(o.moduleid)}</td></tr>`;
-    html += `<tr><td>DPBatchSize</td><td>${esc(o.batchsize)}</td></tr>`;
+    html += `<tr><td>Descrizione breve in italiano (DPShortDescription)</td><td>${esc(o.shortdesc)}</td></tr>`;
+    html += `<tr><td>ID modulo applicativo FW5L (DPModuleId_FW5L)</td><td>${esc(o.moduleid)}</td></tr>`;
+    html += `<tr><td>Dimensione batch di ingestion (DPBatchSize)</td><td>${esc(o.batchsize)}</td></tr>`;
     html += `</table>`;
   });
 
