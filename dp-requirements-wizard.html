@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<title>Wizard Requisiti Data Product</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+<style>
+:root{
+  --md-primary:#00677E;      /* petrolio - richiama "dato/tecnico" */
+  --md-primary-dark:#00485A;
+  --md-primary-light:#E3F1F3;
+  --md-accent:#F2994A;       /* arancio - CTA / azioni chiave */
+  --md-accent-dark:#D97F2C;
+  --md-surface:#FFFFFF;
+  --md-bg:#F3F5F6;
+  --md-outline:#C9D2D4;
+  --md-text:#1B2426;
+  --md-text-mute:#5B6B6E;
+  --md-error:#C0392B;
+  --md-success:#2E7D5B;
+  --md-elev-1: 0 1px 2px rgba(0,0,0,.10), 0 1px 3px rgba(0,0,0,.08);
+  --md-elev-2: 0 2px 6px rgba(0,0,0,.12), 0 1px 2px rgba(0,0,0,.10);
+  --md-elev-3: 0 6px 16px rgba(0,0,0,.14);
+  --radius: 10px;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  font-family:'Roboto',Arial,sans-serif;
+  background:var(--md-bg);
+  color:var(--md-text);
+  line-height:1.5;
+}
+code, .mono{font-family:'Roboto Mono',monospace;}
+
+/* ---------- App bar ---------- */
+.appbar{
+  background:linear-gradient(100deg,var(--md-primary-dark),var(--md-primary));
+  color:#fff;
+  padding:22px 32px;
+  box-shadow:var(--md-elev-2);
+  position:sticky;top:0;z-index:50;
+}
+.appbar h1{margin:0;font-size:20px;font-weight:500;letter-spacing:.2px;}
+.appbar p{margin:4px 0 0;font-size:13px;opacity:.85;font-weight:300;}
+
+/* ---------- Layout ---------- */
+.layout{
+  max-width:980px;
+  margin:0 auto;
+  padding:28px 20px 120px;
+}
+
+/* ---------- Stepper progress ---------- */
+.progress-track{
+  display:flex;
+  gap:6px;
+  margin-bottom:28px;
+}
+.progress-seg{
+  flex:1;height:4px;border-radius:2px;background:var(--md-outline);
+  transition:background .25s;
+}
+.progress-seg.done{background:var(--md-primary);}
+
+/* ---------- Card ---------- */
+.card{
+  background:var(--md-surface);
+  border-radius:var(--radius);
+  box-shadow:var(--md-elev-1);
+  padding:24px 26px;
+  margin-bottom:20px;
+  border:1px solid #E7ECED;
+}
+.card-title{
+  display:flex;align-items:center;gap:10px;
+  font-size:16px;font-weight:500;color:var(--md-primary-dark);
+  margin:0 0 4px;
+}
+.card-title .num{
+  width:26px;height:26px;border-radius:50%;
+  background:var(--md-primary-light);color:var(--md-primary-dark);
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:700;flex:none;
+}
+.card-sub{font-size:13px;color:var(--md-text-mute);margin:0 0 18px;}
+.chip{
+  display:inline-block;font-size:11px;font-weight:600;letter-spacing:.3px;
+  padding:2px 10px;border-radius:20px;text-transform:uppercase;
+}
+.chip-po{background:#E6F3EC;color:var(--md-success);}
+.chip-analista{background:#FDEEE0;color:var(--md-accent-dark);}
+.chip-shared{background:#EFEAF9;color:#6B4FA0;}
+
+/* ---------- Radio option cards ---------- */
+.opt-group{display:flex;flex-direction:column;gap:10px;}
+.opt-card{
+  border:2px solid var(--md-outline);
+  border-radius:var(--radius);
+  padding:14px 16px;
+  display:flex;gap:12px;align-items:flex-start;
+  cursor:pointer;
+  transition:border-color .15s, background .15s;
+  background:#fff;
+}
+.opt-card:hover{border-color:#8FB9C2;}
+.opt-card.selected{
+  border-color:var(--md-primary);
+  background:var(--md-primary-light);
+}
+.opt-card input{margin-top:3px;accent-color:var(--md-primary);width:16px;height:16px;flex:none;}
+.opt-card .opt-title{font-weight:500;font-size:14.5px;color:var(--md-text);}
+.opt-card .opt-desc{font-size:12.5px;color:var(--md-text-mute);margin-top:2px;}
+
+/* ---------- Form fields ---------- */
+.field{margin-bottom:16px;}
+.field label{
+  display:block;font-size:12.5px;font-weight:500;color:var(--md-text-mute);
+  margin-bottom:5px;letter-spacing:.2px;
+}
+.field label .req{color:var(--md-error);margin-left:2px;}
+.field input[type=text], .field input[type=number], .field textarea, .field select{
+  width:100%;
+  border:1.5px solid var(--md-outline);
+  border-radius:8px;
+  padding:9px 11px;
+  font-size:13.5px;
+  font-family:inherit;
+  color:var(--md-text);
+  background:#fff;
+  transition:border-color .15s, box-shadow .15s;
+}
+.field input:focus, .field textarea:focus, .field select:focus{
+  outline:none;border-color:var(--md-primary);
+  box-shadow:0 0 0 3px var(--md-primary-light);
+}
+.field textarea{resize:vertical;min-height:56px;}
+.field .hint{font-size:11.5px;color:#8A9A9D;margin-top:4px;}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;}
+@media(max-width:640px){.row2,.row3{grid-template-columns:1fr;}}
+
+.radio-inline{display:flex;gap:18px;flex-wrap:wrap;margin-top:2px;}
+.radio-inline label{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:400;color:var(--md-text);}
+.radio-inline input{accent-color:var(--md-primary);}
+
+/* ---------- Divider / subsection ---------- */
+.subsection{
+  border-top:1px dashed var(--md-outline);
+  margin-top:6px;padding-top:18px;
+}
+.subhead{
+  font-size:13.5px;font-weight:600;color:var(--md-text);
+  display:flex;align-items:center;gap:8px;margin-bottom:10px;
+}
+
+/* ---------- Columns table ---------- */
+.col-table{width:100%;border-collapse:collapse;font-size:12.5px;margin-bottom:10px;}
+.col-table th{
+  text-align:left;background:var(--md-primary-light);color:var(--md-primary-dark);
+  padding:7px 8px;font-weight:600;font-size:11.5px;border-bottom:1px solid var(--md-outline);
+}
+.col-table td{padding:5px 6px;border-bottom:1px solid #EEF2F3;vertical-align:top;}
+.col-table input, .col-table select{width:100%;border:1px solid var(--md-outline);border-radius:5px;padding:5px 6px;font-size:12px;}
+.col-table .rm-btn{background:none;border:none;color:#B0454A;cursor:pointer;font-size:16px;line-height:1;padding:4px;}
+.add-row-btn{
+  background:none;border:1.5px dashed var(--md-primary);color:var(--md-primary);
+  border-radius:8px;padding:7px 12px;font-size:12.5px;cursor:pointer;font-weight:500;
+  display:inline-flex;align-items:center;gap:5px;
+}
+.add-row-btn:hover{background:var(--md-primary-light);}
+
+/* ---------- Checklist ---------- */
+.check-group{margin-bottom:16px;}
+.check-group h4{font-size:12.5px;text-transform:uppercase;letter-spacing:.4px;color:var(--md-accent-dark);margin:0 0 8px;}
+.check-item{display:flex;gap:10px;align-items:flex-start;padding:8px 10px;border-radius:8px;margin-bottom:4px;}
+.check-item:hover{background:#FAFBFB;}
+.check-item input{margin-top:3px;width:16px;height:16px;accent-color:var(--md-success);flex:none;}
+.check-item .ci-text{font-size:13px;}
+.check-item .ci-note{font-size:11.5px;color:var(--md-text-mute);margin-top:2px;}
+
+/* ---------- OP block ---------- */
+.op-block{
+  border:1.5px solid var(--md-outline);
+  border-radius:var(--radius);
+  padding:20px 22px;
+  margin-bottom:18px;
+  position:relative;
+  background:#FCFDFD;
+}
+.op-block-header{
+  display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;
+}
+.op-block-header .op-tag{
+  background:var(--md-primary-dark);color:#fff;font-size:11px;font-weight:600;
+  padding:3px 10px;border-radius:20px;letter-spacing:.3px;
+}
+.op-remove{background:none;border:none;color:var(--md-error);cursor:pointer;font-size:13px;display:flex;align-items:center;gap:4px;}
+
+/* ---------- Buttons ---------- */
+.btn{
+  border:none;border-radius:24px;padding:11px 22px;font-size:13.5px;font-weight:500;
+  cursor:pointer;display:inline-flex;align-items:center;gap:8px;transition:box-shadow .15s, transform .1s;
+  font-family:inherit;
+}
+.btn:active{transform:scale(.98);}
+.btn-primary{background:var(--md-accent);color:#fff;box-shadow:var(--md-elev-1);}
+.btn-primary:hover{background:var(--md-accent-dark);box-shadow:var(--md-elev-2);}
+.btn-ghost{background:none;color:var(--md-primary);border:1.5px solid var(--md-primary);}
+.btn-ghost:hover{background:var(--md-primary-light);}
+.btn-text{background:none;color:var(--md-text-mute);padding:8px 10px;}
+
+/* ---------- Bottom bar ---------- */
+.bottombar{
+  position:fixed;bottom:0;left:0;right:0;
+  background:#fff;border-top:1px solid #E2E7E8;
+  box-shadow:0 -2px 10px rgba(0,0,0,.06);
+  padding:14px 24px;display:flex;justify-content:center;gap:14px;z-index:40;
+}
+
+/* ---------- Output modal/panel ---------- */
+.overlay{
+  position:fixed;inset:0;background:rgba(10,20,22,.55);
+  display:none;align-items:flex-start;justify-content:center;
+  padding:40px 16px;z-index:100;overflow:auto;
+}
+.overlay.open{display:flex;}
+.output-panel{
+  background:#fff;border-radius:var(--radius);max-width:860px;width:100%;
+  box-shadow:var(--md-elev-3);
+}
+.output-head{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:18px 24px;border-bottom:1px solid #E7ECED;
+}
+.output-head h2{margin:0;font-size:16px;font-weight:500;}
+.output-head button{background:none;border:none;font-size:20px;cursor:pointer;color:var(--md-text-mute);}
+.output-body{padding:22px 24px;max-height:70vh;overflow:auto;}
+.output-preview{
+  border:1px solid #E7ECED;border-radius:8px;padding:18px 20px;background:#FBFCFC;font-size:13px;
+}
+.output-preview h3{color:var(--md-primary-dark);font-size:14.5px;border-bottom:2px solid var(--md-primary-light);padding-bottom:5px;}
+.output-preview h4{color:var(--md-accent-dark);font-size:13px;margin-bottom:6px;}
+.output-preview table{width:100%;border-collapse:collapse;margin:8px 0 16px;font-size:12px;}
+.output-preview th{background:var(--md-primary-light);text-align:left;padding:5px 8px;color:var(--md-primary-dark);}
+.output-preview td{padding:5px 8px;border-bottom:1px solid #EEF2F3;}
+.output-foot{padding:16px 24px;border-top:1px solid #E7ECED;display:flex;justify-content:flex-end;gap:10px;}
+.copy-status{font-size:12px;color:var(--md-success);margin-right:auto;align-self:center;opacity:0;transition:opacity .2s;}
+.copy-status.show{opacity:1;}
+
+.hidden{display:none !important;}
+.note-box{
+  background:var(--md-primary-light);border-left:4px solid var(--md-primary);
+  padding:10px 14px;border-radius:6px;font-size:12.5px;color:var(--md-primary-dark);margin-bottom:16px;
+}
+.gold-note{background:#FDEEE0;border-left-color:var(--md-accent-dark);color:var(--md-accent-dark);}
+</style>
+</head>
+<body>
+
+<div class="appbar">
+  <h1>Raccolta requisiti Data Product</h1>
+  <p>Wizard guidato · genera il riepilogo pronto per Confluence</p>
+</div>
+
+<div class="layout">
+
+  <div class="progress-track" id="progressTrack"></div>
+
+  <!-- STEP 0: verifica preliminare -->
+  <div class="card" id="cardPath">
+    <p class="card-title"><span class="num">0</span> Verifica preliminare del fabbisogno dati</p>
+    <p class="card-sub">Prima di aprire il requisito, verifica su Witboost Marketplace se il dato è già a catalogo. In base all'esito, scegli il percorso corretto.</p>
+
+    <div class="opt-group" id="pathOptions">
+      <label class="opt-card" data-val="nuovo_dp">
+        <input type="radio" name="path" value="nuovo_dp">
+        <div>
+          <div class="opt-title">Nuovo Data Product</div>
+          <div class="opt-desc">I dati non sono presenti a catalogo: serve un nuovo Data Product lato producer, con almeno una Output Port.</div>
+        </div>
+      </label>
+      <label class="opt-card" data-val="nuova_op">
+        <input type="radio" name="path" value="nuova_op">
+        <div>
+          <div class="opt-title">Nuova Output Port su Data Product esistente</div>
+          <div class="opt-desc">Il Data Product esiste già ma non espone ancora tutte le informazioni necessarie.</div>
+        </div>
+      </label>
+      <label class="opt-card" data-val="gold">
+        <input type="radio" name="path" value="gold">
+        <div>
+          <div class="opt-title">Nuova Output Port GOLD</div>
+          <div class="opt-desc">I dati sono già disponibili su una o più Output Port esistenti, ma vanno combinati/raffinati per lo use case (Data Product consumer). Nessun requisito di SQL Change Tracking.</div>
+        </div>
+      </label>
+    </div>
+  </div>
+
+  <!-- DYNAMIC CONTENT -->
+  <div id="dynamicArea"></div>
+
+</div>
+
+<div class="bottombar hidden" id="bottomBar">
+  <button class="btn btn-ghost" id="btnAddOp">
+    <span class="material-icons-outlined" style="font-size:18px;">add</span> Aggiungi un'altra Output Port
+  </button>
+  <button class="btn btn-primary" id="btnGenerate">
+    <span class="material-icons-outlined" style="font-size:18px;">description</span> Genera riepilogo per Confluence
+  </button>
+</div>
+
+<!-- OUTPUT OVERLAY -->
+<div class="overlay" id="overlay">
+  <div class="output-panel">
+    <div class="output-head">
+      <h2>Riepilogo requisiti — pronto per Confluence</h2>
+      <button id="closeOverlay">&times;</button>
+    </div>
+    <div class="output-body">
+      <div class="output-preview" id="outputPreview"></div>
+    </div>
+    <div class="output-foot">
+      <span class="copy-status" id="copyStatus">Copiato negli appunti ✓</span>
+      <button class="btn btn-ghost" id="btnCopyHtml">
+        <span class="material-icons-outlined" style="font-size:17px;">content_copy</span> Copia (formattato)
+      </button>
+      <button class="btn btn-primary" id="btnCopyText">
+        <span class="material-icons-outlined" style="font-size:17px;">notes</span> Copia (testo semplice)
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   STATE
+   ============================================================ */
+let currentPath = null;
+let opCounter = 0;
+const opBlocks = []; // {id, reqIndex}
+
+const EX = { // valori di esempio (placeholder editabili)
+  domain: "financeaccounting",
+  dpName: "Accounting Operations",
+  dpDesc: "This Data Product contains tables with accounting operations data, in particular: customers' and suppliers' payment due dates, customer risk, and accounting documents.",
+  solution: "tsent",
+  owner: "Mario Rossi",
+  support: "Mario Rossi",
+  permessi: "Luca Bianchi (Analista), Sara Verdi (Sviluppatore), Elena Neri (Tester)",
+  opName: "customerrisk",
+  opDesc: "The customer risk dataproduct provides analysis with metrics on exposure, accounting flows, due dates, unpaid items, payment indicators and insurance coverage. Supports accurate assessments through structured and up-to-date data.",
+  schedulazione: "Ogni 2 ore",
+  volume: "≈ 15 MB / 12.000 record al giorno",
+  version: "1.0.0",
+  tipoRilascio: "v12",
+  identifier: "workspaceId + companyRegistryId + customerId",
+  trackingKeys: "-- CG44_CLIFOR\n   CG44.CG44_IDCLIFOR,\n-- CG16_ANAGGEN\n   CG16.CG16_CODICE,\n-- CG07_TABSTATIEST\n   CG07.CG07_CODICE,",
+  dpShortDesc: "Rischio cliente ed esposizione contabile",
+  moduleId: "87",
+  batchSize: "500",
+  goldName: "Customer Risk 360 (Gold)",
+  goldDesc: "Vista aggregata che combina customer risk ed exposure da più Output Port per il dashboard di rischio credito.",
+  goldSources: "financeaccounting.customerrisk (v1.0.0), financeaccounting.paymentdue (v1.2.0)",
+  goldTransform: "Join su customerId + companyRegistryId, aggregazione mensile dell'esposizione, calcolo indicatore di rischio composito in Databricks."
+};
+
+const COL_DEFAULT = [
+  {name:"workspaceId", desc:"Identificativo del workspace TeamSystem", type:"string", constraint:"required, isIdentifier", nullable:"No", ord:"1", fqn:"CG44.WORKSPACE_ID"},
+  {name:"companyRegistryId", desc:"Identificativo anagrafico azienda", type:"string", constraint:"required, isIdentifier", nullable:"No", ord:"2", fqn:"CG44.COMPANY_REGISTRY_ID"},
+  {name:"customerRiskScore", desc:"Punteggio di rischio calcolato sul cliente", type:"number", constraint:"required", nullable:"Sì", ord:"3", fqn:"CG16.CG16_SCORE"}
+];
+
+const CHECKLIST_DEF = [
+  {group:"1. Struttura della vista", items:[
+    {id:"root_single", text:"Individuazione Root Table (vista a singola tabella).", note:"Se la vista coinvolge una sola tabella, questa è la root table."},
+    {id:"root_multi", text:"Individuazione Root Table come tabella \"padre\" (vista multi-tabella).", note:"Garantisce l'univocità della chiave."},
+    {id:"tables_included", text:"Tutte le tabelle collegate per attributi descrittivi sono state incluse.", note:""},
+    {id:"same_db", text:"Tutte le tabelle coinvolte appartengono al medesimo database.", note:"Requisito obbligatorio: il change tracking SQL opera su un unico database."}
+  ]},
+  {group:"2. Campi speciali", items:[
+    {id:"f_workspace", text:"È presente il campo WORKSPACE_ID.", note:"Valorizzato dal programma di ingestion in fase di invio."},
+    {id:"f_company", text:"È presente il campo COMPANY_REGISTRY_ID.", note:"Valorizzato dal programma di ingestion in fase di invio."},
+    {id:"f_extraction", text:"È presente il campo SYSTEM_EXTRACTION_DATE.", note:"Valorizzato dal programma di ingestion in fase di invio."},
+    {id:"f_companycode", text:"È presente il campo COMPANY_CODE, se pertinente.", note:"Estratto dalla vista come campo ordinario; filtro nell'estrazione verso Hermes."},
+    {id:"f_trackingkeys", text:"Sono stati elencati tutti i campi chiave delle tabelle coinvolte (sezione TRACKING_TABLES_PRIMARY_KEYS).", note:""}
+  ]},
+  {group:"3. Regole sintattiche della query", items:[
+    {id:"no_alias_tab", text:"Non sono stati assegnati alias alle tabelle, salvo casi indispensabili (es. self-join).", note:"Dove possibile, mantenere il nome originale della tabella."},
+    {id:"no_comment_after_comma", text:"Non sono presenti commenti inseriti dopo la virgola di fine riga.", note:"Impedirebbe al tool di riconoscere il nome del campo."}
+  ]},
+  {group:"4. Naming convention alias campi", items:[
+    {id:"camelcase", text:"Gli alias dei campi rispettano la convenzione camelCase (Rif. TeamSystem Development Portal).", note:""},
+    {id:"alias_structure", text:"Ogni alias segue la struttura: nome Data Product + nome campo + tipologia contenuto.", note:"Es: mg87.mg87_descart as productDescriptionDesc"}
+  ]},
+  {group:"5. Campi percentuali", items:[
+    {id:"perc_div100", text:"I campi che esprimono valori percentuali sono stati divisi per 100.", note:"Es: do30_scper1 / 100 as documentDiscount1Perc"}
+  ]},
+  {group:"6. SQL Change Tracking", items:[
+    {id:"calc_fields", text:"Per ogni campo calcolato sono stati inclusi i singoli campi fisici usati nel calcolo.", note:"Es: DOC.QTA*DOC.PREZZO_UN → includere anche DOC.QTA e DOC.PREZZO_UN"},
+    {id:"case_fields", text:"Per ogni campo derivato da CASE sono stati inclusi tutti i campi fisici valutati nella condizione.", note:""},
+    {id:"traceability", text:"È stata verificata la tracciabilità di ogni campo calcolato/derivato.", note:"Il change tracking SQL opera solo su campi di tabelle fisiche."}
+  ]}
+];
+
+/* ============================================================
+   HELPERS
+   ============================================================ */
+function el(html){ const d=document.createElement('div'); d.innerHTML=html.trim(); return d.firstChild; }
+function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function updateProgress(){
+  const track = document.getElementById('progressTrack');
+  const total = currentPath ? 3 : 1;
+  const done = currentPath ? (currentPath ? 2 : 1) : 0;
+  track.innerHTML = '';
+  for(let i=0;i<3;i++){
+    const seg = document.createElement('div');
+    seg.className = 'progress-seg' + (i < (currentPath?2:1) ? ' done':'');
+    track.appendChild(seg);
+  }
+}
+
+/* ============================================================
+   PATH SELECTION
+   ============================================================ */
+document.querySelectorAll('#pathOptions .opt-card').forEach(card=>{
+  card.addEventListener('click', ()=>{
+    document.querySelectorAll('#pathOptions .opt-card').forEach(c=>c.classList.remove('selected'));
+    card.classList.add('selected');
+    card.querySelector('input').checked = true;
+    currentPath = card.dataset.val;
+    renderDynamic();
+    updateProgress();
+  });
+});
+
+/* ============================================================
+   DYNAMIC RENDER
+   ============================================================ */
+function renderDynamic(){
+  const area = document.getElementById('dynamicArea');
+  area.innerHTML = '';
+  opBlocks.length = 0;
+  opCounter = 0;
+  document.getElementById('bottomBar').classList.remove('hidden');
+
+  if(currentPath === 'nuovo_dp'){
+    area.appendChild(buildDpGeneraliCard(true));
+    area.appendChild(buildOpAnchor());
+    addOpBlock();
+  } else if(currentPath === 'nuova_op'){
+    area.appendChild(buildDpGeneraliCard(false));
+    area.appendChild(buildOpAnchor());
+    addOpBlock();
+  } else if(currentPath === 'gold'){
+    area.appendChild(buildDpGeneraliCard(true, true));
+    area.appendChild(buildGoldCard());
+    document.getElementById('btnAddOp').classList.add('hidden');
+  }
+  if(currentPath !== 'gold') document.getElementById('btnAddOp').classList.remove('hidden');
+}
+
+function buildOpAnchor(){
+  const d = document.createElement('div');
+  d.id = 'opContainer';
+  return d;
+}
+
+/* ---------- Card 1: Dati generali DP ---------- */
+function buildDpGeneraliCard(full, isGold=false){
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.id = 'dpGeneraliCard';
+
+  if(!full){
+    card.innerHTML = `
+      <p class="card-title"><span class="num">1</span> Data Product di riferimento <span class="chip chip-po">PO</span></p>
+      <p class="card-sub">Il Data Product esiste già: indica solo il riferimento, i dati generali sono già a catalogo.</p>
+      <div class="field">
+        <label>Nome Data Product esistente <span class="req">*</span></label>
+        <input type="text" id="f_existing_dp" placeholder="Es. ${EX.dpName}">
+        <div class="hint">Verificato su Witboost Marketplace</div>
+      </div>
+      <div class="field">
+        <label>Domain</label>
+        <input type="text" id="f_existing_domain" placeholder="Es. ${EX.domain}">
+      </div>
+    `;
+    return card;
+  }
+
+  card.innerHTML = `
+    <p class="card-title"><span class="num">1</span> Dati generali del Data Product ${isGold?'':'<span class="chip chip-po">PO</span>'}</p>
+    <p class="card-sub">Identifica il Data Product dal punto di vista funzionale: cosa verrà esposto e con quale finalità.</p>
+
+    <div class="row2">
+      <div class="field">
+        <label>Domain <span class="req">*</span></label>
+        <input type="text" id="f_domain" placeholder="Es. ${EX.domain}">
+        <div class="hint">Rif. TeamSystem Development Portal</div>
+      </div>
+      <div class="field">
+        <label>Data Product Name <span class="req">*</span></label>
+        <input type="text" id="f_dpname" placeholder="Es. ${EX.dpName}">
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Data Product Description <span class="req">*</span> <span class="chip chip-shared" style="margin-left:6px;">PO + Analista se necessario</span></label>
+      <textarea id="f_dpdesc" placeholder="Es. ${EX.dpDesc}"></textarea>
+    </div>
+
+    <div class="row2">
+      <div class="field">
+        <label>Solution / Product</label>
+        <input type="text" id="f_solution" value="${EX.solution}">
+        <div class="hint">Per TS Enterprise: tsent</div>
+      </div>
+      <div class="field">
+        <label>Owner <span class="req">*</span></label>
+        <input type="text" id="f_owner" placeholder="Es. ${EX.owner}">
+      </div>
+    </div>
+
+    <div class="row2">
+      <div class="field">
+        <label>Support contact</label>
+        <input type="text" id="f_support" placeholder="Es. ${EX.support}">
+        <div class="hint">Se non individuato, indicare il PO del team</div>
+      </div>
+      <div class="field">
+        <label>Permessi e abilitazioni</label>
+        <input type="text" id="f_permessi" placeholder="Es. ${EX.permessi}">
+        <div class="hint">Persone + ruolo: analisti, sviluppatori, tester</div>
+      </div>
+    </div>
+  `;
+  return card;
+}
+
+/* ---------- OP Block ---------- */
+function addOpBlock(){
+  opCounter++;
+  const id = 'op_' + opCounter;
+  opBlocks.push(id);
+  const container = document.getElementById('opContainer');
+
+  const block = document.createElement('div');
+  block.className = 'op-block';
+  block.id = id;
+  block.innerHTML = `
+    <div class="op-block-header">
+      <span class="op-tag">Output Port #${opCounter}</span>
+      ${opCounter>1 ? `<button class="op-remove" onclick="removeOpBlock('${id}')"><span class="material-icons-outlined" style="font-size:15px;">delete_outline</span>Rimuovi</button>` : ''}
+    </div>
+
+    <p class="card-title" style="font-size:14.5px;"><span class="num">2</span> Output Port <span class="chip chip-shared">PO + Analista</span></p>
+    <div class="row2">
+      <div class="field">
+        <label>Output Port Name <span class="req">*</span></label>
+        <input type="text" class="op-name" placeholder="Es. ${EX.opName}">
+      </div>
+      <div class="field">
+        <label>Version</label>
+        <input type="text" class="op-version" value="${EX.version}">
+        <div class="hint">Nuova generazione tabella → 1.0.0</div>
+      </div>
+    </div>
+    <div class="field">
+      <label>Output Port Description <span class="req">*</span></label>
+      <textarea class="op-desc" placeholder="Es. ${EX.opDesc}"></textarea>
+      <div class="hint">La descrizione deve superare i 50 caratteri</div>
+    </div>
+    <div class="row3">
+      <div class="field">
+        <label>Tipologia di tabella <span class="chip chip-shared">PO / Analyst team ERP</span></label>
+        <div class="radio-inline">
+          <label><input type="radio" name="tipo_${id}" value="Last Event (_LE)" checked> Last Event (_LE)</label>
+          <label><input type="radio" name="tipo_${id}" value="Storico (LOG)"> Storico (LOG)</label>
+        </div>
+      </div>
+      <div class="field">
+        <label>Schedulazione per ingestion</label>
+        <input type="text" class="op-sched" placeholder="Es. ${EX.schedulazione}">
+      </div>
+      <div class="field">
+        <label>Volume dati atteso</label>
+        <input type="text" class="op-volume" placeholder="Es. ${EX.volume}">
+      </div>
+    </div>
+    <div class="field">
+      <label>Tipo Rilascio</label>
+      <input type="text" class="op-rilascio" placeholder="Es. ${EX.tipoRilascio}">
+      <div class="hint">Utile per la distribuzione dello script di insert in catalogazione</div>
+    </div>
+
+    <!-- 2.1 -->
+    <div class="subsection">
+      <div class="subhead">2.1 Schema colonne Output Port <span class="chip chip-analista">Analista</span></div>
+      <table class="col-table">
+        <thead><tr>
+          <th style="width:16%">Nome campo</th><th style="width:22%">Descrizione</th><th style="width:10%">Data type</th>
+          <th style="width:14%">Constraint</th><th style="width:8%">Nullable</th><th style="width:6%">Ordinal</th>
+          <th style="width:18%">Fully Qualified Name</th><th></th>
+        </tr></thead>
+        <tbody class="col-tbody"></tbody>
+      </table>
+      <button class="add-row-btn" onclick="addColumnRow('${id}')"><span class="material-icons-outlined" style="font-size:15px;">add</span>Aggiungi campo</button>
+    </div>
+
+    <!-- 2.2 -->
+    <div class="subsection">
+      <div class="subhead">2.2 Tracciabilità sorgente e mapping fisico <span class="chip chip-analista">Analista</span></div>
+      <div class="field">
+        <label>Identifier (chiave primaria logica)</label>
+        <input type="text" class="op-identifier" placeholder="Es. ${EX.identifier}">
+      </div>
+      <div class="field">
+        <label>Campi chiave tabelle coinvolte nella vista (TRACKING_TABLES_PRIMARY_KEYS)</label>
+        <textarea class="op-trackingkeys mono" style="min-height:90px;" placeholder="${esc(EX.trackingKeys)}"></textarea>
+      </div>
+    </div>
+
+    <!-- 2.3 checklist -->
+    <div class="subsection">
+      <div class="subhead">2.3 Checklist di validazione vista SQL <span class="chip chip-analista">Analista</span></div>
+      <div class="op-checklist"></div>
+    </div>
+
+    <!-- 3 -->
+    <div class="subsection">
+      <div class="subhead">3. Parametri script insert per catalogazione <span class="chip chip-shared">PO + Analista</span></div>
+      <div class="row3">
+        <div class="field">
+          <label>DPShortDescription</label>
+          <input type="text" class="op-shortdesc" placeholder="Es. ${EX.dpShortDesc}">
+        </div>
+        <div class="field">
+          <label>DPModuleId_FW5L</label>
+          <input type="text" class="op-moduleid" placeholder="Es. ${EX.moduleId}">
+        </div>
+        <div class="field">
+          <label>DPBatchSize</label>
+          <select class="op-batchsize">
+            <option value="100">100 — entità pesanti / join complesse</option>
+            <option value="500" selected>500 — via di mezzo</option>
+            <option value="1000">1000 — entità leggere, alto volume</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  `;
+  container.appendChild(block);
+
+  // popola colonne di esempio
+  COL_DEFAULT.forEach(c => addColumnRow(id, c));
+
+  // checklist
+  const clWrap = block.querySelector('.op-checklist');
+  CHECKLIST_DEF.forEach(group=>{
+    const g = document.createElement('div');
+    g.className = 'check-group';
+    g.innerHTML = `<h4>${esc(group.group)}</h4>`;
+    group.items.forEach(item=>{
+      const row = document.createElement('label');
+      row.className = 'check-item';
+      row.innerHTML = `<input type="checkbox" data-id="${item.id}">
+        <div><div class="ci-text">${esc(item.text)}</div>${item.note?`<div class="ci-note">${esc(item.note)}</div>`:''}</div>`;
+      g.appendChild(row);
+    });
+    clWrap.appendChild(g);
+  });
+}
+
+function removeOpBlock(id){
+  const idx = opBlocks.indexOf(id);
+  if(idx>-1) opBlocks.splice(idx,1);
+  const b = document.getElementById(id);
+  if(b) b.remove();
+}
+
+function addColumnRow(blockId, prefill){
+  const block = document.getElementById(blockId);
+  const tbody = block.querySelector('.col-tbody');
+  const tr = document.createElement('tr');
+  const p = prefill || {};
+  tr.innerHTML = `
+    <td><input type="text" class="c-name" value="${esc(p.name||'')}" placeholder="es. customerId"></td>
+    <td><input type="text" class="c-desc" value="${esc(p.desc||'')}" placeholder="descrizione"></td>
+    <td>
+      <select class="c-type">
+        <option ${p.type==='string'?'selected':''}>string</option>
+        <option ${p.type==='number'?'selected':''}>number</option>
+        <option ${p.type==='datetime'?'selected':''}>datetime</option>
+        <option ${p.type==='boolean'?'selected':''}>boolean</option>
+      </select>
+    </td>
+    <td><input type="text" class="c-constraint" value="${esc(p.constraint||'')}" placeholder="required / isIdentifier"></td>
+    <td>
+      <select class="c-nullable"><option ${p.nullable==='Sì'?'selected':''}>Sì</option><option ${p.nullable==='No'?'selected':''}>No</option></select>
+    </td>
+    <td><input type="text" class="c-ord" value="${esc(p.ord||'')}" style="width:44px;"></td>
+    <td><input type="text" class="c-fqn mono" value="${esc(p.fqn||'')}" placeholder="tabella.colonna"></td>
+    <td><button class="rm-btn" onclick="this.closest('tr').remove()">✕</button></td>
+  `;
+  tbody.appendChild(tr);
+}
+
+/* ---------- Gold card ---------- */
+function buildGoldCard(){
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.innerHTML = `
+    <p class="card-title"><span class="num">4</span> Gold Port</p>
+    <div class="note-box gold-note">
+      Le porte Gold sono Data Product di tipo consumer (KPI, metriche certificate, aggregazioni curate). Non richiedono la definizione della vista SQL sorgente né i requisiti di SQL Change Tracking: si fa riferimento solo alle sezioni 1 e 4.
+    </div>
+    <div class="field">
+      <label>Gold Port Name <span class="req">*</span></label>
+      <input type="text" id="g_name" placeholder="Es. ${EX.goldName}">
+    </div>
+    <div class="field">
+      <label>Gold Port Description <span class="req">*</span></label>
+      <textarea id="g_desc" placeholder="Es. ${EX.goldDesc}"></textarea>
+    </div>
+    <div class="field">
+      <label>Output Port sorgenti utilizzate</label>
+      <textarea id="g_sources" placeholder="Es. ${EX.goldSources}"></textarea>
+      <div class="hint">Elenco dei Data Product / Output Port già a catalogo usati come input</div>
+    </div>
+    <div class="field">
+      <label>Descrizione trasformazione / join</label>
+      <textarea id="g_transform" placeholder="Es. ${EX.goldTransform}"></textarea>
+    </div>
+    <div class="row2">
+      <div class="field">
+        <label>Owner</label>
+        <input type="text" id="g_owner" placeholder="Es. ${EX.owner}">
+      </div>
+      <div class="field">
+        <label>Version</label>
+        <input type="text" id="g_version" value="${EX.version}">
+      </div>
+    </div>
+  `;
+  return card;
+}
+
+/* ============================================================
+   ADD OP BUTTON
+   ============================================================ */
+document.getElementById('btnAddOp').addEventListener('click', ()=>{
+  if(!currentPath || currentPath === 'gold') return;
+  addOpBlock();
+});
+
+/* ============================================================
+   GENERATE OUTPUT
+   ============================================================ */
+function val(sel, root=document){ const n = root.querySelector(sel); return n ? (n.value||'').trim() : ''; }
+function orPlaceholder(v, ph){ return v && v.length ? v : `<em>${esc(ph)}</em>`; }
+
+function collectOpData(id){
+  const b = document.getElementById(id);
+  const rows = [...b.querySelectorAll('.col-tbody tr')].map(tr=>({
+    name: val('.c-name', tr), desc: val('.c-desc', tr), type: val('.c-type', tr),
+    constraint: val('.c-constraint', tr), nullable: val('.c-nullable', tr),
+    ord: val('.c-ord', tr), fqn: val('.c-fqn', tr)
+  }));
+  const checklist = [...b.querySelectorAll('.op-checklist input[type=checkbox]')];
+  const checkedCount = checklist.filter(c=>c.checked).length;
+  const tipoRadio = b.querySelector(`input[name^="tipo_"]:checked`);
+  return {
+    name: val('.op-name', b), desc: val('.op-desc', b), version: val('.op-version', b),
+    tipo: tipoRadio ? tipoRadio.value : '',
+    sched: val('.op-sched', b), volume: val('.op-volume', b), rilascio: val('.op-rilascio', b),
+    identifier: val('.op-identifier', b), trackingKeys: val('.op-trackingkeys', b),
+    shortdesc: val('.op-shortdesc', b), moduleid: val('.op-moduleid', b), batchsize: val('.op-batchsize', b),
+    columns: rows, checkedCount, totalChecks: checklist.length
+  };
+}
+
+function buildOutputHtml(){
+  let dp = {};
+  if(currentPath === 'nuova_op'){
+    dp.existing = val('#f_existing_dp') || EX.dpName;
+    dp.domain = val('#f_existing_domain') || EX.domain;
+  } else {
+    dp.domain = val('#f_domain') || EX.domain;
+    dp.name = val('#f_dpname') || EX.dpName;
+    dp.desc = val('#f_dpdesc') || EX.dpDesc;
+    dp.solution = val('#f_solution') || EX.solution;
+    dp.owner = val('#f_owner') || EX.owner;
+    dp.support = val('#f_support') || EX.support;
+    dp.permessi = val('#f_permessi') || EX.permessi;
+  }
+
+  let html = '';
+  const reqLabel = currentPath === 'gold' ? 'Nuova Output Port GOLD' :
+                    currentPath === 'nuova_op' ? 'Nuova Output Port su Data Product esistente' :
+                    'Nuovo Data Product';
+
+  html += `<p><strong>Percorso selezionato:</strong> ${esc(reqLabel)}</p>`;
+
+  // REQ table
+  html += `<h3>Elenco requisiti (tipo: Data Product)</h3><table><tr><th>ID</th><th>Titolo</th><th>Tipo</th></tr>`;
+  let reqN = 1;
+  const reqRows = [];
+  if(currentPath === 'nuovo_dp'){
+    reqRows.push([`REQ00${reqN++}`, `Creazione nuovo Data Product ${dp.name||'—'}`]);
+  }
+  if(currentPath !== 'gold'){
+    opBlocks.forEach((id)=>{
+      const o = collectOpData(id);
+      reqRows.push([`REQ00${reqN++}`, `Creazione nuova Output Port ${o.name||'—'}`]);
+    });
+  } else {
+    reqRows.push([`REQ00${reqN++}`, `Creazione nuova Output Port GOLD ${val('#g_name')||EX.goldName}`]);
+  }
+  reqRows.forEach(r=> html += `<tr><td>${r[0]}</td><td>${esc(r[1])}</td><td>Data Product</td></tr>`);
+  html += `</table>`;
+
+  // Section 1
+  html += `<h3>1. Dati generali del Data Product</h3><table>`;
+  if(currentPath === 'nuova_op'){
+    html += `<tr><td>Data Product esistente</td><td>${esc(dp.existing)}</td></tr>`;
+    html += `<tr><td>Domain</td><td>${esc(dp.domain)}</td></tr>`;
+  } else {
+    html += `<tr><td>Domain</td><td>${esc(dp.domain)}</td></tr>`;
+    html += `<tr><td>Data Product Name</td><td>${esc(dp.name)}</td></tr>`;
+    html += `<tr><td>Data Product Description</td><td>${esc(dp.desc)}</td></tr>`;
+    html += `<tr><td>Solution / Product</td><td>${esc(dp.solution)}</td></tr>`;
+    html += `<tr><td>Owner</td><td>${esc(dp.owner)}</td></tr>`;
+    html += `<tr><td>Support contact</td><td>${esc(dp.support)}</td></tr>`;
+    html += `<tr><td>Permessi e abilitazioni</td><td>${esc(dp.permessi)}</td></tr>`;
+  }
+  html += `</table>`;
+
+  if(currentPath === 'gold'){
+    html += `<h3>4. Gold Port</h3><table>`;
+    html += `<tr><td>Gold Port Name</td><td>${esc(val('#g_name')||EX.goldName)}</td></tr>`;
+    html += `<tr><td>Gold Port Description</td><td>${esc(val('#g_desc')||EX.goldDesc)}</td></tr>`;
+    html += `<tr><td>Output Port sorgenti utilizzate</td><td>${esc(val('#g_sources')||EX.goldSources)}</td></tr>`;
+    html += `<tr><td>Trasformazione / join</td><td>${esc(val('#g_transform')||EX.goldTransform)}</td></tr>`;
+    html += `<tr><td>Owner</td><td>${esc(val('#g_owner')||EX.owner)}</td></tr>`;
+    html += `<tr><td>Version</td><td>${esc(val('#g_version')||EX.version)}</td></tr>`;
+    html += `</table>`;
+    return html;
+  }
+
+  opBlocks.forEach((id, i)=>{
+    const o = collectOpData(id);
+    const reqTag = currentPath==='nuovo_dp' ? `REQ00${i+2}` : `REQ00${i+1}`;
+    html += `<h3>${reqTag} — Output Port: ${esc(o.name||'—')}</h3>`;
+
+    html += `<h4>2. Output Port</h4><table>`;
+    html += `<tr><td>Output Port Name</td><td>${esc(o.name)}</td></tr>`;
+    html += `<tr><td>Output Port Description</td><td>${esc(o.desc)}</td></tr>`;
+    html += `<tr><td>Tipologia di tabella</td><td>${esc(o.tipo)}</td></tr>`;
+    html += `<tr><td>Schedulazione per ingestion</td><td>${esc(o.sched)}</td></tr>`;
+    html += `<tr><td>Volume Dati atteso</td><td>${esc(o.volume)}</td></tr>`;
+    html += `<tr><td>Version</td><td>${esc(o.version)}</td></tr>`;
+    html += `<tr><td>Tipo Rilascio</td><td>${esc(o.rilascio)}</td></tr>`;
+    html += `</table>`;
+
+    html += `<h4>2.1 Schema colonne Output Port</h4><table><tr><th>Nome campo</th><th>Descrizione</th><th>Data type</th><th>Constraint</th><th>Nullable</th><th>Ordinal</th><th>Fully Qualified Name</th></tr>`;
+    o.columns.forEach(c=>{
+      html += `<tr><td>${esc(c.name)}</td><td>${esc(c.desc)}</td><td>${esc(c.type)}</td><td>${esc(c.constraint)}</td><td>${esc(c.nullable)}</td><td>${esc(c.ord)}</td><td>${esc(c.fqn)}</td></tr>`;
+    });
+    html += `</table>`;
+
+    html += `<h4>2.2 Tracciabilità sorgente e mapping fisico</h4><table>`;
+    html += `<tr><td>Identifier</td><td>${esc(o.identifier)}</td></tr>`;
+    html += `</table>`;
+    html += `<p><strong>TRACKING_TABLES_PRIMARY_KEYS:</strong></p><pre style="background:#f4f6f6;padding:10px;border-radius:6px;font-size:12px;white-space:pre-wrap;">${esc(o.trackingKeys)}</pre>`;
+
+    html += `<h4>2.3 Checklist di validazione</h4><p>Voci verificate: <strong>${o.checkedCount}/${o.totalChecks}</strong></p>`;
+
+    html += `<h4>3. Parametri script insert per catalogazione</h4><table>`;
+    html += `<tr><td>DPShortDescription</td><td>${esc(o.shortdesc)}</td></tr>`;
+    html += `<tr><td>DPModuleId_FW5L</td><td>${esc(o.moduleid)}</td></tr>`;
+    html += `<tr><td>DPBatchSize</td><td>${esc(o.batchsize)}</td></tr>`;
+    html += `</table>`;
+  });
+
+  return html;
+}
+
+function buildOutputText(){
+  // versione testo semplice (per copia raw, es. in editor markdown)
+  const wrap = document.createElement('div');
+  wrap.innerHTML = buildOutputHtml();
+  let out = '';
+  wrap.querySelectorAll('h3,h4,table,p,pre').forEach(node=>{
+    if(node.tagName==='H3') out += `\n\n== ${node.textContent} ==\n`;
+    else if(node.tagName==='H4') out += `\n-- ${node.textContent} --\n`;
+    else if(node.tagName==='P') out += `${node.textContent}\n`;
+    else if(node.tagName==='PRE') out += `${node.textContent}\n`;
+    else if(node.tagName==='TABLE'){
+      node.querySelectorAll('tr').forEach(tr=>{
+        const cells = [...tr.children].map(td=>td.textContent.trim());
+        out += cells.join(' | ') + '\n';
+      });
+    }
+  });
+  return out.trim();
+}
+
+document.getElementById('btnGenerate').addEventListener('click', ()=>{
+  const preview = document.getElementById('outputPreview');
+  preview.innerHTML = buildOutputHtml();
+  document.getElementById('overlay').classList.add('open');
+});
+document.getElementById('closeOverlay').addEventListener('click', ()=>{
+  document.getElementById('overlay').classList.remove('open');
+});
+
+document.getElementById('btnCopyHtml').addEventListener('click', async ()=>{
+  const html = document.getElementById('outputPreview').innerHTML;
+  const plain = document.getElementById('outputPreview').innerText;
+  try{
+    const item = new ClipboardItem({
+      'text/html': new Blob([html], {type:'text/html'}),
+      'text/plain': new Blob([plain], {type:'text/plain'})
+    });
+    await navigator.clipboard.write([item]);
+    showCopyStatus();
+  }catch(e){
+    // fallback: selection + execCommand
+    const range = document.createRange();
+    range.selectNode(document.getElementById('outputPreview'));
+    const sel = window.getSelection();
+    sel.removeAllRanges(); sel.addRange(range);
+    document.execCommand('copy');
+    sel.removeAllRanges();
+    showCopyStatus();
+  }
+});
+document.getElementById('btnCopyText').addEventListener('click', async ()=>{
+  const text = buildOutputText();
+  try{ await navigator.clipboard.writeText(text); showCopyStatus(); }
+  catch(e){ alert('Copia non riuscita: seleziona manualmente il testo.'); }
+});
+function showCopyStatus(){
+  const s = document.getElementById('copyStatus');
+  s.classList.add('show');
+  setTimeout(()=>s.classList.remove('show'), 2200);
+}
+
+updateProgress();
+</script>
+</body>
+</html>
