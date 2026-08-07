@@ -6,22 +6,53 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
 :root{
-  --md-primary:#00677E;      /* petrolio - richiama "dato/tecnico" */
-  --md-primary-dark:#00485A;
-  --md-primary-light:#E3F1F3;
-  --md-accent:#F2994A;       /* arancio - CTA / azioni chiave */
-  --md-accent-dark:#D97F2C;
-  --md-surface:#FFFFFF;
-  --md-bg:#F3F5F6;
-  --md-outline:#C9D2D4;
-  --md-text:#1B2426;
-  --md-text-mute:#5B6B6E;
-  --md-error:#C0392B;
-  --md-success:#2E7D5B;
-  --md-elev-1: 0 1px 2px rgba(0,0,0,.10), 0 1px 3px rgba(0,0,0,.08);
-  --md-elev-2: 0 2px 6px rgba(0,0,0,.12), 0 1px 2px rgba(0,0,0,.10);
-  --md-elev-3: 0 6px 16px rgba(0,0,0,.14);
-  --radius: 10px;
+  /* ---- Material 3 — palette BASELINE ufficiale (m3.material.io/styles/color/static/baseline) ---- */
+  --md-primary:#6750A4;
+  --md-on-primary:#FFFFFF;
+  --md-primary-container:#EADDFF;
+  --md-on-primary-container:#21005D;
+  --md-primary-dark:#4F378A;      /* tono 30 della palette primary, per testo/hover enfatizzati */
+  --md-primary-light:#EADDFF;      /* alias di primary-container, per sfondi soft */
+
+  --md-secondary:#625B71;
+  --md-on-secondary:#FFFFFF;
+  --md-secondary-container:#E8DEF8;
+  --md-on-secondary-container:#1D192B;
+
+  --md-tertiary:#7D5260;
+  --md-on-tertiary:#FFFFFF;
+  --md-tertiary-container:#FFD8E4;
+  --md-on-tertiary-container:#31111D;
+
+  /* CTA principale (bottoni "Convalida" / "Genera"): usiamo il ruolo Tertiary per contrasto rispetto al Primary */
+  --md-accent:#7D5260;
+  --md-accent-dark:#633B48;
+
+  --md-surface:#FFFBFE;
+  --md-surface-1:#F7F2FA;
+  --md-surface-2:#F1ECF4;
+  --md-bg:#F4F0F7;
+
+  --md-outline:#79747E;
+  --md-outline-variant:#CAC4D0;
+  --md-text:#1C1B1F;
+  --md-text-mute:#49454F;
+
+  --md-error:#B3261E;
+  --md-error-container:#F9DEDC;
+  --md-on-error-container:#410E0B;
+  /* "success" non è un ruolo nativo M3: estensione custom con lightness coerente ai container baseline */
+  --md-success:#2E6B44;
+  --md-success-container:#D7F5DA;
+
+  /* M3 elevation: shadow leggerissime, il "peso" lo dà il tint di superficie */
+  --md-elev-1: 0 1px 2px rgba(0,0,0,.05), 0 1px 3px 1px rgba(0,0,0,.04);
+  --md-elev-2: 0 1px 2px rgba(0,0,0,.06), 0 2px 6px 2px rgba(0,0,0,.05);
+  --md-elev-3: 0 4px 8px 3px rgba(0,0,0,.06), 0 1px 3px rgba(0,0,0,.08);
+
+  /* M3 shape scale */
+  --r-xs:4px; --r-sm:8px; --r-md:12px; --r-lg:16px; --r-xl:28px;
+  --radius: var(--r-lg);
 }
 *{box-sizing:border-box;}
 html,body{margin:0;padding:0;}
@@ -30,19 +61,22 @@ body{
   background:var(--md-bg);
   color:var(--md-text);
   line-height:1.5;
+  -webkit-font-smoothing:antialiased;
 }
 code, .mono{font-family:'Consolas','Courier New',monospace;}
 
-/* ---------- App bar ---------- */
+/* ---------- App bar (M3 top app bar: superficie piatta, non gradiente) ---------- */
 .appbar{
-  background:linear-gradient(100deg,var(--md-primary-dark),var(--md-primary));
-  color:#fff;
-  padding:22px 32px;
-  box-shadow:var(--md-elev-2);
+  background:var(--md-surface);
+  color:var(--md-text);
+  padding:20px 32px;
+  border-bottom:1px solid var(--md-outline-variant);
   position:sticky;top:0;z-index:50;
 }
-.appbar h1{margin:0;font-size:20px;font-weight:500;letter-spacing:.2px;}
-.appbar p{margin:4px 0 0;font-size:13px;opacity:.85;font-weight:300;}
+.appbar h1{
+  margin:0;font-size:22px;font-weight:600;letter-spacing:0;color:var(--md-primary-dark);
+}
+.appbar p{margin:4px 0 0;font-size:13px;color:var(--md-text-mute);font-weight:400;}
 
 /* ---------- Layout ---------- */
 .layout{
@@ -51,68 +85,69 @@ code, .mono{font-family:'Consolas','Courier New',monospace;}
   padding:28px 20px 120px;
 }
 
-/* ---------- Stepper progress ---------- */
+/* ---------- Stepper progress (M3 linear progress: sottile, pill) ---------- */
 .progress-track{
   display:flex;
   gap:6px;
   margin-bottom:28px;
 }
 .progress-seg{
-  flex:1;height:4px;border-radius:2px;background:var(--md-outline);
+  flex:1;height:4px;border-radius:99px;background:var(--md-outline-variant);
   transition:background .25s;
 }
 .progress-seg.done{background:var(--md-primary);}
 
-/* ---------- Card ---------- */
+/* ---------- Card (M3 filled/outlined card ibrida: superficie tint + outline sottile) ---------- */
 .card{
-  background:var(--md-surface);
-  border-radius:var(--radius);
-  box-shadow:var(--md-elev-1);
+  background:var(--md-surface-1);
+  border-radius:var(--r-lg);
+  box-shadow:none;
   padding:24px 26px;
   margin-bottom:20px;
-  border:1px solid #E7ECED;
+  border:1px solid var(--md-outline-variant);
 }
 .card-title{
   display:flex;align-items:center;gap:10px;
-  font-size:16px;font-weight:500;color:var(--md-primary-dark);
+  font-size:16px;font-weight:600;color:var(--md-primary-dark);
   margin:0 0 4px;
 }
 .card-title .num{
   width:26px;height:26px;border-radius:50%;
-  background:var(--md-primary-light);color:var(--md-primary-dark);
+  background:var(--md-primary-container);color:var(--md-on-primary-container);
   display:flex;align-items:center;justify-content:center;
   font-size:13px;font-weight:700;flex:none;
 }
 .card-sub{font-size:13px;color:var(--md-text-mute);margin:0 0 18px;}
 .chip{
   display:inline-block;font-size:11px;font-weight:600;letter-spacing:.3px;
-  padding:2px 10px;border-radius:20px;text-transform:uppercase;
+  padding:3px 12px;border-radius:99px;text-transform:uppercase;
 }
-.chip-po{background:#E6F3EC;color:var(--md-success);}
-.chip-analista{background:#FDEEE0;color:var(--md-accent-dark);}
-.chip-shared{background:#EFEAF9;color:#6B4FA0;}
+.chip-po{background:var(--md-success-container);color:var(--md-success);}
+.chip-analista{background:var(--md-secondary-container);color:var(--md-accent-dark);}
+.chip-shared{background:#E9E2F7;color:#5B3E9E;}
 
-/* ---------- Radio option cards ---------- */
+/* ---------- Radio option cards (M3: outlined selezionabile, container tint quando selezionato) ---------- */
 .opt-group{display:flex;flex-direction:column;gap:10px;}
 .opt-card{
-  border:2px solid var(--md-outline);
-  border-radius:var(--radius);
+  border:1px solid var(--md-outline);
+  border-radius:var(--r-md);
   padding:14px 16px;
   display:flex;gap:12px;align-items:flex-start;
   cursor:pointer;
   transition:border-color .15s, background .15s;
-  background:#fff;
+  background:var(--md-surface);
 }
-.opt-card:hover{border-color:#8FB9C2;}
+.opt-card:hover{border-color:var(--md-primary);background:var(--md-surface-1);}
 .opt-card.selected{
   border-color:var(--md-primary);
-  background:var(--md-primary-light);
+  border-width:2px;
+  background:var(--md-primary-container);
 }
-.opt-card input{margin-top:3px;accent-color:var(--md-primary);width:16px;height:16px;flex:none;}
-.opt-card .opt-title{font-weight:500;font-size:14.5px;color:var(--md-text);}
+.opt-card input{margin-top:3px;accent-color:var(--md-primary);width:18px;height:18px;flex:none;}
+.opt-card .opt-title{font-weight:600;font-size:14.5px;color:var(--md-text);}
 .opt-card .opt-desc{font-size:12.5px;color:var(--md-text-mute);margin-top:2px;}
 
-/* ---------- Form fields ---------- */
+/* ---------- Form fields (M3 outlined text field) ---------- */
 .field{margin-bottom:16px;}
 .field label{
   display:block;font-size:12.5px;font-weight:500;color:var(--md-text-mute);
@@ -121,21 +156,21 @@ code, .mono{font-family:'Consolas','Courier New',monospace;}
 .field label .req{color:var(--md-error);margin-left:2px;}
 .field input[type=text], .field input[type=number], .field textarea, .field select{
   width:100%;
-  border:1.5px solid var(--md-outline);
-  border-radius:8px;
-  padding:9px 11px;
+  border:1px solid var(--md-outline);
+  border-radius:var(--r-xs);
+  padding:10px 12px;
   font-size:13.5px;
   font-family:inherit;
   color:var(--md-text);
-  background:#fff;
+  background:var(--md-surface);
   transition:border-color .15s, box-shadow .15s;
 }
 .field input:focus, .field textarea:focus, .field select:focus{
-  outline:none;border-color:var(--md-primary);
-  box-shadow:0 0 0 3px var(--md-primary-light);
+  outline:none;border-color:var(--md-primary);border-width:1.5px;
+  box-shadow:0 0 0 3px var(--md-primary-container);
 }
 .field textarea{resize:vertical;min-height:56px;}
-.field .hint{font-size:11.5px;color:#8A9A9D;margin-top:4px;}
+.field .hint{font-size:11.5px;color:var(--md-text-mute);margin-top:4px;opacity:.85;}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
 .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;}
 @media(max-width:640px){.row2,.row3{grid-template-columns:1fr;}}
@@ -146,122 +181,137 @@ code, .mono{font-family:'Consolas','Courier New',monospace;}
 
 /* ---------- Divider / subsection ---------- */
 .subsection{
-  border-top:1px dashed var(--md-outline);
+  border-top:1px solid var(--md-outline-variant);
   margin-top:6px;padding-top:18px;
 }
 .subhead{
-  font-size:13.5px;font-weight:600;color:var(--md-text);
+  font-size:13.5px;font-weight:700;color:var(--md-text);
   display:flex;align-items:center;gap:8px;margin-bottom:10px;
 }
 
 /* ---------- Columns table ---------- */
 .col-table{width:100%;border-collapse:collapse;font-size:12.5px;margin-bottom:10px;}
 .col-table th{
-  text-align:left;background:var(--md-primary-light);color:var(--md-primary-dark);
-  padding:7px 8px;font-weight:600;font-size:11.5px;border-bottom:1px solid var(--md-outline);
+  text-align:left;background:var(--md-primary-container);color:var(--md-on-primary-container);
+  padding:8px 8px;font-weight:600;font-size:11.5px;border-bottom:1px solid var(--md-outline-variant);
 }
-.col-table td{padding:5px 6px;border-bottom:1px solid #EEF2F3;vertical-align:top;}
-.col-table input, .col-table select{width:100%;border:1px solid var(--md-outline);border-radius:5px;padding:5px 6px;font-size:12px;}
-.col-table .rm-btn{background:none;border:none;color:#B0454A;cursor:pointer;font-size:16px;line-height:1;padding:4px;}
+.col-table th:first-child{border-top-left-radius:var(--r-xs);}
+.col-table th:last-child{border-top-right-radius:var(--r-xs);}
+.col-table td{padding:6px 6px;border-bottom:1px solid var(--md-outline-variant);vertical-align:top;}
+.col-table input, .col-table select{width:100%;border:1px solid var(--md-outline);border-radius:6px;padding:6px 7px;font-size:12px;background:var(--md-surface);}
+.col-table .rm-btn{background:none;border:none;color:var(--md-error);cursor:pointer;font-size:16px;line-height:1;padding:4px;border-radius:50%;}
+.col-table .rm-btn:hover{background:var(--md-error-container);}
 .add-row-btn{
-  background:none;border:1.5px dashed var(--md-primary);color:var(--md-primary);
-  border-radius:8px;padding:7px 12px;font-size:12.5px;cursor:pointer;font-weight:500;
+  background:var(--md-primary-container);border:none;color:var(--md-on-primary-container);
+  border-radius:99px;padding:8px 16px;font-size:12.5px;cursor:pointer;font-weight:600;
   display:inline-flex;align-items:center;gap:5px;
 }
-.add-row-btn:hover{background:var(--md-primary-light);}
+.add-row-btn:hover{filter:brightness(0.96);}
 
 /* ---------- Checklist ---------- */
 .check-group{margin-bottom:16px;}
-.check-group h4{font-size:12.5px;text-transform:uppercase;letter-spacing:.4px;color:var(--md-accent-dark);margin:0 0 8px;}
-.check-item{display:flex;gap:10px;align-items:flex-start;padding:8px 10px;border-radius:8px;margin-bottom:4px;}
-.check-item:hover{background:#FAFBFB;}
-.check-item input{margin-top:3px;width:16px;height:16px;accent-color:var(--md-success);flex:none;}
+.check-group h4{font-size:12px;text-transform:uppercase;letter-spacing:.5px;color:var(--md-accent-dark);margin:0 0 8px;font-weight:700;}
+.check-item{display:flex;gap:10px;align-items:flex-start;padding:9px 10px;border-radius:var(--r-sm);margin-bottom:4px;}
+.check-item:hover{background:var(--md-surface-2);}
+.check-item input{margin-top:3px;width:18px;height:18px;accent-color:var(--md-success);flex:none;}
 .check-item .ci-text{font-size:13px;}
 .check-item .ci-note{font-size:11.5px;color:var(--md-text-mute);margin-top:2px;}
 
 /* ---------- OP block ---------- */
 .op-block{
-  border:1.5px solid var(--md-outline);
-  border-radius:var(--radius);
+  border:1px solid var(--md-outline-variant);
+  border-radius:var(--r-lg);
   padding:20px 22px;
   margin-bottom:18px;
   position:relative;
-  background:#FCFDFD;
+  background:var(--md-surface);
 }
 .op-block-header{
   display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;
 }
 .op-block-header .op-tag{
-  background:var(--md-primary-dark);color:#fff;font-size:11px;font-weight:600;
-  padding:3px 10px;border-radius:20px;letter-spacing:.3px;
+  background:var(--md-primary);color:var(--md-on-primary);font-size:11px;font-weight:700;
+  padding:4px 12px;border-radius:99px;letter-spacing:.3px;
 }
-.op-remove{background:none;border:none;color:var(--md-error);cursor:pointer;font-size:13px;display:flex;align-items:center;gap:4px;}
+.op-remove{background:none;border:none;color:var(--md-error);cursor:pointer;font-size:13px;display:flex;align-items:center;gap:4px;padding:4px 8px;border-radius:99px;}
+.op-remove:hover{background:var(--md-error-container);}
 
-/* ---------- Buttons ---------- */
+/* ---------- Buttons (M3: filled / filled-tonal / outlined / text) ---------- */
 .btn{
-  border:none;border-radius:24px;padding:11px 22px;font-size:13.5px;font-weight:500;
-  cursor:pointer;display:inline-flex;align-items:center;gap:8px;transition:box-shadow .15s, transform .1s;
+  border:none;border-radius:99px;padding:11px 24px;font-size:13.5px;font-weight:600;
+  cursor:pointer;display:inline-flex;align-items:center;gap:8px;transition:box-shadow .15s, background .15s, transform .1s;
   font-family:inherit;
 }
 .btn:active{transform:scale(.98);}
-.btn-primary{background:var(--md-accent);color:#fff;box-shadow:var(--md-elev-1);}
-.btn-primary:hover{background:var(--md-accent-dark);box-shadow:var(--md-elev-2);}
-.btn-ghost{background:none;color:var(--md-primary);border:1.5px solid var(--md-primary);}
-.btn-ghost:hover{background:var(--md-primary-light);}
+.btn-primary{background:var(--md-accent);color:#fff;box-shadow:none;}
+.btn-primary:hover{background:var(--md-accent-dark);box-shadow:var(--md-elev-1);}
+.btn-ghost{background:var(--md-primary-container);color:var(--md-on-primary-container);border:none;}
+.btn-ghost:hover{filter:brightness(0.97);}
 .btn-text{background:none;color:var(--md-text-mute);padding:8px 10px;}
 
 /* ---------- Bottom bar ---------- */
 .bottombar{
   position:fixed;bottom:0;left:0;right:0;
-  background:#fff;border-top:1px solid #E2E7E8;
-  box-shadow:0 -2px 10px rgba(0,0,0,.06);
+  background:var(--md-surface);border-top:1px solid var(--md-outline-variant);
+  box-shadow:0 -1px 6px rgba(0,0,0,.04);
   padding:14px 24px;display:flex;justify-content:center;gap:14px;z-index:40;
 }
 
 /* ---------- Output modal/panel ---------- */
 .overlay{
-  position:fixed;inset:0;background:rgba(10,20,22,.55);
+  position:fixed;inset:0;background:rgba(28,27,26,.5);
   display:none;align-items:flex-start;justify-content:center;
   padding:40px 16px;z-index:100;overflow:auto;
 }
 .overlay.open{display:flex;}
 .output-panel{
-  background:#fff;border-radius:var(--radius);max-width:860px;width:100%;
+  background:var(--md-surface);border-radius:var(--r-xl);max-width:860px;width:100%;
   box-shadow:var(--md-elev-3);
 }
 .output-head{
   display:flex;justify-content:space-between;align-items:center;
-  padding:18px 24px;border-bottom:1px solid #E7ECED;
+  padding:18px 24px;border-bottom:1px solid var(--md-outline-variant);
 }
-.output-head h2{margin:0;font-size:16px;font-weight:500;}
-.output-head button{background:none;border:none;font-size:20px;cursor:pointer;color:var(--md-text-mute);}
+.output-head h2{margin:0;font-size:16px;font-weight:600;}
+.output-head button{background:none;border:none;font-size:20px;cursor:pointer;color:var(--md-text-mute);border-radius:50%;padding:4px 8px;}
+.output-head button:hover{background:var(--md-surface-2);}
+.output-tabs{display:flex;gap:6px;padding:12px 24px 0;border-bottom:1px solid var(--md-outline-variant);}
+.tab-btn{
+  background:none;border:none;cursor:pointer;font-size:12.5px;font-weight:600;
+  color:var(--md-text-mute);padding:9px 14px;border-radius:99px 99px 0 0;
+  border-bottom:2.5px solid transparent;margin-bottom:-1px;
+}
+.tab-btn:hover{background:var(--md-surface-2);}
+.tab-btn.active{color:var(--md-primary-dark);border-bottom-color:var(--md-primary);}
 .output-body{padding:22px 24px;max-height:70vh;overflow:auto;}
 .output-preview{
-  border:1px solid #E7ECED;border-radius:8px;padding:18px 20px;background:#FBFCFC;font-size:13px;
+  border:1px solid var(--md-outline-variant);border-radius:var(--r-md);padding:18px 20px;background:var(--md-surface-1);font-size:13px;
 }
-.output-preview h3{color:var(--md-primary-dark);font-size:14.5px;border-bottom:2px solid var(--md-primary-light);padding-bottom:5px;}
+.output-preview h2{color:var(--md-on-primary-container);background:var(--md-primary-container);padding:8px 12px;border-radius:var(--r-sm);font-size:15px;margin-top:22px;}
+.output-preview h3{color:var(--md-primary-dark);font-size:14.5px;border-bottom:2px solid var(--md-primary-container);padding-bottom:5px;}
 .output-preview h4{color:var(--md-accent-dark);font-size:13px;margin-bottom:6px;}
+.output-preview ul{margin:4px 0 12px;padding-left:20px;font-size:12.5px;}
 .output-preview table{width:100%;border-collapse:collapse;margin:8px 0 16px;font-size:12px;}
-.output-preview th{background:var(--md-primary-light);text-align:left;padding:5px 8px;color:var(--md-primary-dark);}
-.output-preview td{padding:5px 8px;border-bottom:1px solid #EEF2F3;}
-.output-foot{padding:16px 24px;border-top:1px solid #E7ECED;display:flex;justify-content:flex-end;gap:10px;}
+.output-preview th{background:var(--md-primary-container);text-align:left;padding:6px 8px;color:var(--md-on-primary-container);}
+.output-preview td{padding:6px 8px;border-bottom:1px solid var(--md-outline-variant);}
+.output-foot{padding:16px 24px;border-top:1px solid var(--md-outline-variant);display:flex;justify-content:flex-end;gap:10px;}
 .copy-status{font-size:12px;color:var(--md-success);margin-right:auto;align-self:center;opacity:0;transition:opacity .2s;}
 .copy-status.show{opacity:1;}
 
 /* ---------- Validazione progressiva ---------- */
 .box-footer{
-  border-top:1px solid #E7ECED;margin-top:20px;padding-top:16px;
+  border-top:1px solid var(--md-outline-variant);margin-top:20px;padding-top:16px;
   display:flex;align-items:center;gap:14px;flex-wrap:wrap;
 }
 .error-banner{
   display:flex;align-items:center;gap:8px;
-  background:#FDECEA;color:var(--md-error);border:1px solid #F3C6C1;
-  border-radius:8px;padding:9px 13px;font-size:12.5px;font-weight:500;width:100%;
+  background:var(--md-error-container);color:var(--md-error);border:none;
+  border-radius:var(--r-sm);padding:10px 14px;font-size:12.5px;font-weight:500;width:100%;
 }
 .completed-banner{
   display:flex;align-items:center;gap:10px;width:100%;
-  background:#EAF6EF;color:var(--md-success);border:1px solid #C9E9D6;
-  border-radius:8px;padding:10px 14px;font-size:13px;font-weight:500;
+  background:var(--md-success-container);color:var(--md-success);border:none;
+  border-radius:var(--r-sm);padding:10px 14px;font-size:13px;font-weight:500;
 }
 .completed-banner .cb-icon{
   width:20px;height:20px;border-radius:50%;background:var(--md-success);color:#fff;
@@ -272,30 +322,31 @@ code, .mono{font-family:'Consolas','Courier New',monospace;}
   font-size:12px;cursor:pointer;font-weight:600;
 }
 .field.field-error input, .field.field-error textarea, .field.field-error select{
-  border-color:var(--md-error);box-shadow:0 0 0 3px rgba(192,57,43,.10);
+  border-color:var(--md-error);border-width:1.5px;box-shadow:0 0 0 3px var(--md-error-container);
 }
 .next-locked{
-  border:1.5px dashed var(--md-outline);border-radius:var(--radius);
+  border:1px dashed var(--md-outline);border-radius:var(--r-md);
   padding:16px 20px;display:flex;align-items:center;gap:10px;
-  color:var(--md-text-mute);font-size:13px;background:#FAFBFB;margin-bottom:20px;
+  color:var(--md-text-mute);font-size:13px;background:var(--md-surface-2);margin-bottom:20px;
 }
 .next-locked .lock-ico{font-size:15px;}
 .btn:disabled{opacity:.4;cursor:not-allowed;box-shadow:none;}
-.card.is-complete{border-color:#BFE3D0;}
+.card.is-complete{border-color:var(--md-success);background:var(--md-surface);}
 
 .hidden{display:none !important;}
 .note-box{
-  background:var(--md-primary-light);border-left:4px solid var(--md-primary);
-  padding:10px 14px;border-radius:6px;font-size:12.5px;color:var(--md-primary-dark);margin-bottom:16px;
+  background:var(--md-primary-container);border-left:4px solid var(--md-primary);
+  padding:10px 14px;border-radius:var(--r-sm);font-size:12.5px;color:var(--md-on-primary-container);margin-bottom:16px;
 }
-.gold-note{background:#FDEEE0;border-left-color:var(--md-accent-dark);color:var(--md-accent-dark);}
+.gold-note{background:var(--md-secondary-container);border-left-color:var(--md-accent-dark);color:var(--md-on-secondary-container);}
+
 </style>
 </head>
 <body>
 
 <div class="appbar">
-  <h1>TeamSystem Ent - Wizard raccolta requisiti Data Product</h1>
-  <p>Wizard guidato · genera il riepilogo pronto per Analisi Confluence</p>
+  <h1>Raccolta requisiti Data Product</h1>
+  <p>Wizard guidato · genera il riepilogo pronto per Confluence</p>
 </div>
 
 <div class="layout">
@@ -339,10 +390,10 @@ code, .mono{font-family:'Consolas','Courier New',monospace;}
 
 <div class="bottombar hidden" id="bottomBar">
   <button class="btn btn-ghost" id="btnAddOp">
-    <span aria-hidden="true">+</span> Aggiungi un'altra Output Port
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg> Aggiungi un'altra Output Port
   </button>
   <button class="btn btn-primary" id="btnGenerate" disabled title="Convalida tutte le sezioni obbligatorie per generare il riepilogo">
-    <span aria-hidden="true">&#128203;</span> Genera riepilogo per Confluence
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg> Genera riepilogo per Confluence
   </button>
 </div>
 
@@ -350,8 +401,12 @@ code, .mono{font-family:'Consolas','Courier New',monospace;}
 <div class="overlay" id="overlay">
   <div class="output-panel">
     <div class="output-head">
-      <h2>Riepilogo requisiti — pronto per Confluence</h2>
-      <button id="closeOverlay">&times;</button>
+      <h2 id="outputTitle">Riepilogo requisiti — pronto per Confluence</h2>
+      <button id="closeOverlay" aria-label="Chiudi"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></button>
+    </div>
+    <div class="output-tabs">
+      <button class="tab-btn active" data-mode="summary" id="tabSummary">Riepilogo interno</button>
+      <button class="tab-btn" data-mode="af" id="tabAf">Sezione Analisi Funzionale (TS DocsPilot)</button>
     </div>
     <div class="output-body">
       <div class="output-preview" id="outputPreview"></div>
@@ -359,10 +414,10 @@ code, .mono{font-family:'Consolas','Courier New',monospace;}
     <div class="output-foot">
       <span class="copy-status" id="copyStatus">Copiato negli appunti ✓</span>
       <button class="btn btn-ghost" id="btnCopyHtml">
-        <span aria-hidden="true">&#10697;</span> Copia (formattato)
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg> Copia (formattato)
       </button>
       <button class="btn btn-primary" id="btnCopyText">
-        <span aria-hidden="true">&#9776;</span> Copia (testo semplice)
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4 10.5c-.83 0-1.5.67-1.5 1.5s.67 1.5 1.5 1.5 1.5-.67 1.5-1.5-.67-1.5-1.5-1.5zm0-6c-.83 0-1.5.67-1.5 1.5S3.17 7.5 4 7.5 5.5 6.83 5.5 6 4.83 4.5 4 4.5zm0 12c-.83 0-1.5.68-1.5 1.5s.68 1.5 1.5 1.5 1.5-.68 1.5-1.5-.67-1.5-1.5-1.5zM7 19h14v-2H7v2zm0-6h14v-2H7v2zm0-8v2h14V5H7z"/></svg> Copia (testo semplice)
       </button>
     </div>
   </div>
@@ -446,6 +501,17 @@ const CHECKLIST_DEF = [
    HELPERS
    ============================================================ */
 function el(html){ const d=document.createElement('div'); d.innerHTML=html.trim(); return d.firstChild; }
+
+/* ---------- Icone Material Symbols (SVG inline, nessuna dipendenza esterna) ---------- */
+const ICON_PATHS = {
+  lock:   'M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z',
+  delete: 'M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z',
+  add:    'M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z',
+  check:  'M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z'
+};
+function icon(name, size=14){
+  return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:-2px;flex:none;" aria-hidden="true"><path d="${ICON_PATHS[name]}"/></svg>`;
+}
 function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
 function updateProgress(){
@@ -498,7 +564,7 @@ function renderDynamic(){
   const lockNote = document.createElement('div');
   lockNote.className = 'next-locked';
   lockNote.id = 'nextLockNote';
-  lockNote.innerHTML = `<span class="lock-ico">🔒</span> ${currentPath==='gold' ? 'Completa i dati generali per sbloccare la Gold Port' : 'Completa i dati generali per sbloccare la prima Output Port'}`;
+  lockNote.innerHTML = `<span class="lock-ico">${icon('lock',15)}</span> ${currentPath==='gold' ? 'Completa i dati generali per sbloccare la Gold Port' : 'Completa i dati generali per sbloccare la prima Output Port'}`;
   area.appendChild(lockNote);
 
   updateGenerateAvailability();
@@ -521,7 +587,7 @@ function completeBox(cardEl, footerEl, btnEl, bannerEl, label, onEdit){
   bannerEl.classList.add('hidden');
   const cb = document.createElement('div');
   cb.className = 'completed-banner';
-  cb.innerHTML = `<span class="cb-icon">✓</span> ${esc(label)} <button class="cb-edit" type="button">Modifica</button>`;
+  cb.innerHTML = `<span class="cb-icon">${icon('check',12)}</span> ${esc(label)} <button class="cb-edit" type="button">Modifica</button>`;
   footerEl.appendChild(cb);
   cb.querySelector('.cb-edit').addEventListener('click', ()=>{
     cardEl.classList.remove('is-complete');
@@ -637,6 +703,16 @@ function buildDpGeneraliCard(full, isGold=false){
       <p class="card-title"><span class="num">1</span> Data Product di riferimento <span class="chip chip-po">PO</span></p>
       <p class="card-sub">Il Data Product esiste già: indica solo il riferimento, i dati generali sono già a catalogo.</p>
       <div class="field">
+        <label>Codice Requisito di partenza</label>
+        <input type="text" id="f_startReq" value="REQ001">
+        <div class="hint">Per continuare la numerazione da requisiti già presenti su Confluence (es. REQ005 se REQ001-004 esistono già)</div>
+      </div>
+      <div class="field">
+        <label>Numero di capitolo di partenza (sezione "3. Analisi Funzionale")</label>
+        <input type="text" id="f_startChapter" value="3.1">
+        <div class="hint">Es. 3.4 se sotto "3. Analisi Funzionale" esistono già le sottosezioni 3.1, 3.2, 3.3</div>
+      </div>
+      <div class="field">
         <label>Nome Data Product esistente <span class="req">*</span></label>
         <input type="text" id="f_existing_dp" class="req-field" placeholder="Es. ${EX.dpName}">
         <div class="hint">Verificato su Witboost Marketplace</div>
@@ -662,6 +738,19 @@ function buildDpGeneraliCard(full, isGold=false){
   card.innerHTML = `
     <p class="card-title"><span class="num">1</span> Dati generali del Data Product ${isGold?'':'<span class="chip chip-po">PO</span>'}</p>
     <p class="card-sub">Identifica il Data Product dal punto di vista funzionale: cosa verrà esposto e con quale finalità.</p>
+
+    <div class="row2">
+      <div class="field">
+        <label>Codice Requisito di partenza</label>
+        <input type="text" id="f_startReq" value="REQ001">
+        <div class="hint">Per continuare da requisiti già presenti (es. REQ005)</div>
+      </div>
+      <div class="field">
+        <label>Numero di capitolo di partenza (sez. "3. Analisi Funzionale")</label>
+        <input type="text" id="f_startChapter" value="3.1">
+        <div class="hint">Es. 3.4 se esistono già le sottosezioni 3.1-3.3</div>
+      </div>
+    </div>
 
     <div class="row2">
       <div class="field">
@@ -732,7 +821,7 @@ function addOpBlock(){
   block.innerHTML = `
     <div class="op-block-header">
       <span class="op-tag">Output Port #${opCounter}</span>
-      ${opCounter>1 ? `<button class="op-remove" onclick="removeOpBlock('${id}')"><span aria-hidden="true">&#10005;</span> Rimuovi</button>` : ''}
+      ${opCounter>1 ? `<button class="op-remove" onclick="removeOpBlock('${id}')">${icon('delete',15)} Rimuovi</button>` : ''}
     </div>
 
     <p class="card-title" style="font-size:14.5px;"><span class="num">2</span> Output Port <span class="chip chip-shared">PO + Analista</span></p>
@@ -798,7 +887,7 @@ function addOpBlock(){
         </tr></thead>
         <tbody class="col-tbody"></tbody>
       </table>
-      <button class="add-row-btn" onclick="addColumnRow('${id}')"><span aria-hidden="true">+</span> Aggiungi campo</button>
+      <button class="add-row-btn" onclick="addColumnRow('${id}')">${icon('add',14)} Aggiungi campo</button>
     </div>
 
     <!-- 2.2 -->
@@ -910,7 +999,7 @@ function addColumnRow(blockId, prefill){
     </td>
     <td><input type="text" class="c-ord" value="${esc(p.ord||'')}" style="width:44px;"></td>
     <td><input type="text" class="c-fqn mono" value="${esc(p.fqn||'')}" placeholder="tabella.colonna"></td>
-    <td><button class="rm-btn" onclick="this.closest('tr').remove()">✕</button></td>
+    <td><button class="rm-btn" onclick="this.closest('tr').remove()" aria-label="Rimuovi riga"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></button></td>
   `;
   tbody.appendChild(tr);
 }
@@ -985,6 +1074,13 @@ function collectOpData(id){
   }));
   const checklist = [...b.querySelectorAll('.op-checklist input[type=checkbox]')];
   const checkedCount = checklist.filter(c=>c.checked).length;
+  const checkedByGroup = {};
+  b.querySelectorAll('.op-checklist .check-group').forEach(g=>{
+    const groupName = g.querySelector('h4').textContent;
+    const items = [...g.querySelectorAll('.check-item')].filter(ci=>ci.querySelector('input').checked)
+      .map(ci=>ci.querySelector('.ci-text').textContent);
+    if(items.length) checkedByGroup[groupName] = items;
+  });
   const tipoRadio = b.querySelector(`input[name^="tipo_"]:checked`);
   return {
     name: val('.op-name', b), desc: val('.op-desc', b), version: val('.op-version', b),
@@ -992,11 +1088,35 @@ function collectOpData(id){
     sched: val('.op-sched', b), volume: val('.op-volume', b), rilascio: val('.op-rilascio', b),
     identifier: val('.op-identifier', b), trackingKeys: val('.op-trackingkeys', b),
     shortdesc: val('.op-shortdesc', b), moduleid: val('.op-moduleid', b), batchsize: val('.op-batchsize', b),
-    columns: rows, checkedCount, totalChecks: checklist.length
+    columns: rows, checkedCount, totalChecks: checklist.length, checkedByGroup
   };
 }
 
-function buildOutputHtml(){
+/* ---------- Numerazione requisiti (per allineare con REQ già esistenti su Confluence) ---------- */
+function parseReqCode(raw){
+  const m = /^(.*?)(\d+)\s*$/.exec((raw||'').trim());
+  if(!m) return {prefix:'REQ', width:3, start:1};
+  return {prefix:m[1] || 'REQ', width:m[2].length, start:parseInt(m[2],10)};
+}
+function reqCodeFor(base, n){ // n = 1,2,3...
+  return base.prefix + String(base.start + (n-1)).padStart(base.width,'0');
+}
+function getStartReqBase(){
+  return parseReqCode(val('#f_startReq') || 'REQ001');
+}
+function parseChapterCode(raw){
+  const m = /^(\d+)\.(\d+)\s*$/.exec((raw||'').trim());
+  if(!m) return {chapter:'3', start:1};
+  return {chapter:m[1], start:parseInt(m[2],10)};
+}
+function chapterCodeFor(base, n){ // n = 1,2,3...
+  return `${base.chapter}.${base.start + (n-1)}`;
+}
+function getStartChapterBase(){
+  return parseChapterCode(val('#f_startChapter') || '3.1');
+}
+
+function collectDpData(){
   let dp = {};
   if(currentPath === 'nuova_op'){
     dp.existing = val('#f_existing_dp') || EX.dpName;
@@ -1010,7 +1130,11 @@ function buildOutputHtml(){
     dp.support = val('#f_support') || EX.support;
     dp.permessi = val('#f_permessi') || EX.permessi;
   }
+  return dp;
+}
 
+function buildOutputHtml(){
+  const dp = collectDpData();
   let html = '';
   const reqLabel = currentPath === 'gold' ? 'Nuova Output Port GOLD' :
                     currentPath === 'nuova_op' ? 'Nuova Output Port su Data Product esistente' :
@@ -1020,18 +1144,19 @@ function buildOutputHtml(){
 
   // REQ table
   html += `<h3>Elenco requisiti (tipo: Data Product)</h3><table><tr><th>ID</th><th>Titolo</th><th>Tipo</th></tr>`;
+  const reqBase = getStartReqBase();
   let reqN = 1;
   const reqRows = [];
   if(currentPath === 'nuovo_dp'){
-    reqRows.push([`REQ00${reqN++}`, `Creazione nuovo Data Product ${dp.name||'—'}`]);
+    reqRows.push([reqCodeFor(reqBase, reqN++), `Creazione nuovo Data Product ${dp.name||'—'}`]);
   }
   if(currentPath !== 'gold'){
     opBlocks.forEach((id)=>{
       const o = collectOpData(id);
-      reqRows.push([`REQ00${reqN++}`, `Creazione nuova Output Port ${o.name||'—'}`]);
+      reqRows.push([reqCodeFor(reqBase, reqN++), `Creazione nuova Output Port ${o.name||'—'}`]);
     });
   } else {
-    reqRows.push([`REQ00${reqN++}`, `Creazione nuova Output Port GOLD ${val('#g_name')||EX.goldName}`]);
+    reqRows.push([reqCodeFor(reqBase, reqN++), `Creazione nuova Output Port GOLD ${val('#g_name')||EX.goldName}`]);
   }
   reqRows.forEach(r=> html += `<tr><td>${r[0]}</td><td>${esc(r[1])}</td><td>Data Product</td></tr>`);
   html += `</table>`;
@@ -1066,7 +1191,8 @@ function buildOutputHtml(){
 
   opBlocks.forEach((id, i)=>{
     const o = collectOpData(id);
-    const reqTag = currentPath==='nuovo_dp' ? `REQ00${i+2}` : `REQ00${i+1}`;
+    const startIdx = currentPath==='nuovo_dp' ? 2 : 1;
+    const reqTag = reqCodeFor(reqBase, startIdx + i);
     html += `<h3>${reqTag} — Output Port: ${esc(o.name||'—')}</h3>`;
 
     html += `<h4>2. Output Port</h4><table>`;
@@ -1102,16 +1228,157 @@ function buildOutputHtml(){
   return html;
 }
 
-function buildOutputText(){
+/* ============================================================
+   FORMATO "SEZIONE ANALISI FUNZIONALE" (TS DocsPilot Template Master)
+   Riproduce la struttura: ## REQ00X / ### US00X / Campi / Regole.../ Area dati / Criteri di accettazione
+   ============================================================ */
+function afField(label, value){
+  return `<p><strong>${esc(label)}</strong>: ${value && value.trim() ? esc(value) : '<em>—</em>'}</p>`;
+}
+function afRuleList(items){
+  if(!items || !items.length) return '<em>—</em>';
+  return '<ul>' + items.map(t=>`<li>${esc(t)}</li>`).join('') + '</ul>';
+}
+
+function buildAnalisiFunzionaleHtml(){
+  const dp = collectDpData();
+  const reqBase = getStartReqBase();
+  const chapterBase = getStartChapterBase();
+  let html = '';
+  let reqN = 1;
+
+  function reqHeader(titolo){
+    html += `<h3>${chapterCodeFor(chapterBase, reqN)} ${reqCodeFor(reqBase, reqN)} - ${esc(titolo)}</h3>`;
+  }
+  function usHeader(titolo){
+    html += `<h4>US${String(reqBase.start + (reqN-1)).padStart(reqBase.width,'0')} - ${esc(titolo)}</h4>`;
+  }
+
+  if(currentPath === 'gold'){
+    const g = {
+      name: val('#g_name')||EX.goldName, desc: val('#g_desc')||EX.goldDesc,
+      sources: val('#g_sources')||EX.goldSources, transform: val('#g_transform')||EX.goldTransform,
+      owner: val('#g_owner')||EX.owner, version: val('#g_version')||EX.version
+    };
+    reqHeader(`Creazione nuova Output Port GOLD ${g.name}`);
+    usHeader(g.name);
+    html += afField('Descrizione', g.desc);
+    html += afField('Attori coinvolti', `Owner: ${g.owner} — Data Engineering (trasformazione), PO (validazione funzionale)`);
+    html += afField('Flussi (principali e alternativi)', `Gold Port costruita a partire dalle Output Port sorgenti: ${g.sources}. Trasformazione: ${g.transform}`);
+    html += afField('Mockup/Prototipi', 'Non applicabile — non è prevista interfaccia utente, il deliverable è un dataset curato (Output Port di tipo consumer).');
+    html += `<p><strong>Campi:</strong></p><p><em>Non applicabile in questa fase — la Gold Port non richiede la definizione della vista SQL sorgente; lo schema deriva dalle trasformazioni Databricks a valle.</em></p>`;
+    html += `<p><strong>Azioni:</strong> Pubblicazione a catalogo Witboost, versione ${esc(g.version)}.</p>`;
+    html += afField('Regole di validazione', 'Non applicabile — nessun requisito di SQL Change Tracking per le Gold Port (rif. par. 4 del documento requisiti Data Product).');
+    html += afField('Regole decisionali', '—');
+    html += afField('Regole di calcolo o elaborazione', g.transform);
+    html += afField('Regole sui processi', 'Aggiornamento secondo la schedulazione definita a valle della trasformazione Databricks.');
+    html += afField('Pre-condizioni', `Le Output Port sorgenti (${g.sources}) devono essere già pubblicate a catalogo.`);
+    html += afField('Post-condizioni', `Gold Port pubblicata a catalogo Witboost, versione ${g.version}.`);
+    html += afField('Conformità e normative', '—');
+    html += `<h4>Area dati</h4><p><em>Non applicabile — schema definito dalle trasformazioni a valle, non da una vista SQL sorgente.</em></p>`;
+    html += `<h4>Criteri di accettazione</h4><p><em>La Gold Port è disponibile a catalogo Witboost con la versione indicata e supera i controlli di qualità dati previsti dal team Data Platform.</em></p>`;
+    return html;
+  }
+
+  // --- Requisito 1: Data Product (solo se nuovo DP) ---
+  if(currentPath === 'nuovo_dp'){
+    reqHeader(`Creazione nuovo Data Product ${dp.name}`);
+    usHeader(`Definizione Data Product ${dp.name}`);
+    html += afField('Descrizione', dp.desc);
+    html += afField('Attori coinvolti', `Owner: ${dp.owner} — Support contact: ${dp.support} — Permessi: ${dp.permessi}`);
+    html += afField('Flussi (principali e alternativi)', `Verifica preliminare su Witboost Marketplace → creazione nuovo Data Product nel domain "${dp.domain}" → definizione di almeno una Output Port associata.`);
+    html += afField('Mockup/Prototipi', 'Non applicabile — Data Product dati, nessuna interfaccia utente.');
+    html += `<p><strong>Campi:</strong></p><table><tr><th>Label</th><th>Descrizione</th><th>Tipo</th><th>Valori</th><th>Obbligatorio</th></tr>`;
+    html += `<tr><td>Domain</td><td>Dominio funzionale di appartenenza</td><td>string</td><td>${esc(dp.domain)}</td><td>Sì</td></tr>`;
+    html += `<tr><td>Data Product Name</td><td>Nome rappresentativo del contenuto</td><td>string</td><td>${esc(dp.name)}</td><td>Sì</td></tr>`;
+    html += `<tr><td>Solution / Product</td><td>Identificativo prodotto/soluzione</td><td>string</td><td>${esc(dp.solution)}</td><td>No</td></tr>`;
+    html += `</table>`;
+    html += `<p><strong>Azioni:</strong> Creazione del Data Product su Witboost, assegnazione permessi al team.</p>`;
+    html += afField('Regole di validazione', 'Verifica preliminare su Witboost Marketplace: i dati non devono essere già disponibili a catalogo, per evitare duplicazioni.');
+    html += afField('Regole decisionali', 'Se i dati non sono a catalogo → nuovo Data Product; se il DP esiste ma non espone i dati → nuova Output Port; se i dati esistono ma vanno combinati → nuova Output Port GOLD.');
+    html += afField('Regole di calcolo o elaborazione', '—');
+    html += afField('Regole sui processi', '—');
+    html += afField('Pre-condizioni', 'Assenza del dato a catalogo, verificata su Witboost Marketplace.');
+    html += afField('Post-condizioni', `Data Product "${dp.name}" creato nel domain "${dp.domain}", pronto per l'aggiunta di Output Port.`);
+    html += afField('Conformità e normative', '—');
+    html += `<h4>Area dati</h4><p><em>Non applicabile a livello di Data Product — lo schema dati è definito a livello di singola Output Port (vedi requisiti successivi).</em></p>`;
+    html += `<h4>Criteri di accettazione</h4><p>Il Data Product è visibile e ricercabile su Witboost Marketplace, con owner e permessi correttamente assegnati.</p>`;
+    reqN++;
+  }
+
+  // --- Un Requisito/Use case per ogni Output Port ---
+  opBlocks.forEach((id)=>{
+    const o = collectOpData(id);
+    const titolo = `Creazione nuova Output Port ${o.name || '—'}`;
+    reqHeader(titolo);
+    usHeader(o.name || '—');
+
+    html += afField('Descrizione', o.desc);
+    html += afField('Attori coinvolti', currentPath==='nuova_op'
+      ? `Data Product esistente: ${dp.existing} — PO / Analyst team ERP (tipologia tabella, schedulazione) — Analista (schema, mapping, SQL Change Tracking)`
+      : `Data Product: ${dp.name} — Owner: ${dp.owner} — Analista (schema, mapping, SQL Change Tracking)`);
+    html += afField('Flussi (principali e alternativi)', `Tipologia tabella: ${o.tipo}. Schedulazione ingestion: ${o.sched}. Volume dati atteso: ${o.volume}. Versione: ${o.version}${o.rilascio?` (rilascio ${o.rilascio})`:''}.`);
+    html += afField('Mockup/Prototipi', 'Non applicabile — Output Port dati, nessuna interfaccia utente. Vedi schema colonne in "Area dati".');
+
+    html += `<p><strong>Campi:</strong></p><table><tr><th>Label</th><th>Descrizione</th><th>Tipo</th><th>Valori</th><th>Obbligatorio</th></tr>`;
+    if(o.columns.length){
+      o.columns.forEach(c=>{
+        const obbligatorio = /required/i.test(c.constraint) ? 'Sì' : 'No';
+        html += `<tr><td>${esc(c.name)}</td><td>${esc(c.desc)}</td><td>${esc(c.type)}</td><td>${esc(c.fqn)}</td><td>${obbligatorio}</td></tr>`;
+      });
+    } else {
+      html += `<tr><td colspan="5"><em>Nessun campo definito</em></td></tr>`;
+    }
+    html += `</table>`;
+
+    html += `<p><strong>Azioni:</strong> Ingestion pianificata (${esc(o.sched)}), pubblicazione a catalogo Witboost con batch size ${esc(o.batchsize)}.</p>`;
+
+    const checklistRules = [];
+    Object.keys(o.checkedByGroup||{}).forEach(g=>{ checklistRules.push(...o.checkedByGroup[g]); });
+    html += `<p><strong>Regole di validazione</strong>:</p>${afRuleList(checklistRules.length ? checklistRules : null)}`;
+    if(!checklistRules.length) html += `<p><em>Checklist di validazione non ancora compilata (${o.checkedCount}/${o.totalChecks} voci verificate nel wizard).</em></p>`;
+
+    html += afField('Regole decisionali', `Tipologia di tabella: ${o.tipo} (Last Event vs storico, in base alla natura del dato).`);
+    html += afField('Regole di calcolo o elaborazione', (o.checkedByGroup && o.checkedByGroup['6. SQL Change Tracking']) ? afRuleList(o.checkedByGroup['6. SQL Change Tracking']).replace(/<\/?ul>|<\/?li>/g,'') : 'Nessun campo calcolato/derivato dichiarato.');
+    html += afField('Regole sui processi', `Schedulazione ingestion: ${o.sched}. Volume atteso: ${o.volume}. DPBatchSize: ${o.batchsize}.`);
+    html += afField('Pre-condizioni', `Identifier: ${o.identifier || '—'}. Tutte le tabelle coinvolte nella vista devono appartenere al medesimo database (requisito obbligatorio per il Change Tracking SQL).`);
+    html += afField('Post-condizioni', `Output Port "${o.name}" pubblicata a catalogo Witboost, versione ${o.version}.`);
+    html += afField('Conformità e normative', 'Tracciabilità garantita dai campi WORKSPACE_ID, COMPANY_REGISTRY_ID e SYSTEM_EXTRACTION_DATE, valorizzati dal programma di ingestion.');
+
+    html += `<h4>Area dati</h4><table><tr><th>Nome proprietà</th><th>Tipo</th><th>Dimensione</th><th>Obbligatorietà</th></tr>`;
+    if(o.columns.length){
+      o.columns.forEach(c=>{
+        const obbligatorieta = c.nullable === 'No' ? 'Obbligatorio' : 'Opzionale';
+        html += `<tr><td>${esc(c.fqn || c.name)}</td><td>${esc(c.type)}</td><td>—</td><td>${obbligatorieta}</td></tr>`;
+      });
+    } else {
+      html += `<tr><td colspan="4"><em>Nessuna proprietà definita</em></td></tr>`;
+    }
+    html += `</table>`;
+
+    html += `<h4>Criteri di accettazione</h4><p>La vista SQL supera la checklist di validazione (${o.checkedCount}/${o.totalChecks} voci), l'Output Port "${o.name}" è pubblicata a catalogo Witboost con lo schema colonne descritto, e i parametri di catalogazione (DPShortDescription, DPModuleId_FW5L, DPBatchSize) sono correttamente valorizzati.</p>`;
+
+    reqN++;
+  });
+
+  return html;
+}
+
+function buildOutputText(sourceHtml){
   // versione testo semplice (per copia raw, es. in editor markdown)
   const wrap = document.createElement('div');
-  wrap.innerHTML = buildOutputHtml();
+  wrap.innerHTML = sourceHtml;
   let out = '';
-  wrap.querySelectorAll('h3,h4,table,p,pre').forEach(node=>{
-    if(node.tagName==='H3') out += `\n\n== ${node.textContent} ==\n`;
+  wrap.querySelectorAll('h2,h3,h4,table,p,pre,ul').forEach(node=>{
+    if(node.closest('li')) return; // evita di duplicare il testo delle liste già gestite da UL
+    if(node.tagName==='H2') out += `\n\n# ${node.textContent} #\n`;
+    else if(node.tagName==='H3') out += `\n\n== ${node.textContent} ==\n`;
     else if(node.tagName==='H4') out += `\n-- ${node.textContent} --\n`;
     else if(node.tagName==='P') out += `${node.textContent}\n`;
     else if(node.tagName==='PRE') out += `${node.textContent}\n`;
+    else if(node.tagName==='UL'){
+      [...node.children].forEach(li=> out += `  - ${li.textContent}\n`);
+    }
     else if(node.tagName==='TABLE'){
       node.querySelectorAll('tr').forEach(tr=>{
         const cells = [...tr.children].map(td=>td.textContent.trim());
@@ -1122,10 +1389,30 @@ function buildOutputText(){
   return out.trim();
 }
 
-document.getElementById('btnGenerate').addEventListener('click', ()=>{
+let outputMode = 'summary';
+function renderOutputPreview(){
   const preview = document.getElementById('outputPreview');
-  preview.innerHTML = buildOutputHtml();
+  const title = document.getElementById('outputTitle');
+  if(outputMode === 'af'){
+    preview.innerHTML = buildAnalisiFunzionaleHtml();
+    title.textContent = 'Sezione Analisi Funzionale — pronta da incollare nel Template Master (TS DocsPilot)';
+  } else {
+    preview.innerHTML = buildOutputHtml();
+    title.textContent = 'Riepilogo requisiti — pronto per Confluence';
+  }
+}
+document.getElementById('btnGenerate').addEventListener('click', ()=>{
+  outputMode = 'summary';
+  document.querySelectorAll('.tab-btn').forEach(t=>t.classList.toggle('active', t.dataset.mode==='summary'));
+  renderOutputPreview();
   document.getElementById('overlay').classList.add('open');
+});
+document.querySelectorAll('.tab-btn').forEach(tab=>{
+  tab.addEventListener('click', ()=>{
+    outputMode = tab.dataset.mode;
+    document.querySelectorAll('.tab-btn').forEach(t=>t.classList.toggle('active', t===tab));
+    renderOutputPreview();
+  });
 });
 document.getElementById('closeOverlay').addEventListener('click', ()=>{
   document.getElementById('overlay').classList.remove('open');
@@ -1153,7 +1440,7 @@ document.getElementById('btnCopyHtml').addEventListener('click', async ()=>{
   }
 });
 document.getElementById('btnCopyText').addEventListener('click', async ()=>{
-  const text = buildOutputText();
+  const text = buildOutputText(document.getElementById('outputPreview').innerHTML);
   try{ await navigator.clipboard.writeText(text); showCopyStatus(); }
   catch(e){ alert('Copia non riuscita: seleziona manualmente il testo.'); }
 });
